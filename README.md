@@ -184,6 +184,10 @@ You need to provide:
 
 **MONGO_URI** - MongoDB connection string
 
+**CHANNEL_URL** - Your main channel URL (e.g., https://t.me/YourChannel)
+
+**SUPPORT_URL** - Your support group URL (e.g., https://t.me/YourSupportGroup)
+
 ### Step 2: Complete Package Installation
 Since the installation timed out, run this to complete it:
 
