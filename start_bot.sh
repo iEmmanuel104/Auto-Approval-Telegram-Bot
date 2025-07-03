@@ -7,15 +7,15 @@ echo "🤖 Starting Auto Approval Bot..."
 # Check if .env file exists
 if [ ! -f .env ]; then
     echo "❌ Error: .env file not found!"
-    echo "Please copy .env.example to .env and fill in your credentials"
+    echo "Please create a .env file with your bot credentials"
+    echo "Copy .env.example to .env and fill in your values"
     exit 1
 fi
 
 # Check if virtual environment exists
 if [ ! -d "venv" ]; then
-    echo "❌ Error: Virtual environment not found!"
-    echo "Please run: python3 -m venv venv"
-    exit 1
+    echo "📦 Creating virtual environment..."
+    python3 -m venv venv
 fi
 
 # Activate virtual environment
@@ -30,7 +30,7 @@ fi
 
 # Export environment variables
 echo "🔧 Loading environment variables..."
-export $(cat .env | grep -v '^#' | xargs)
+export $(cat .env | grep -v '^#' | grep -v '^$' | xargs)
 
 # Start the bot
 echo "🚀 Starting bot..."
