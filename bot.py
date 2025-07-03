@@ -1,6 +1,7 @@
 import logging
 import asyncio
 import random
+import os
 from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
 from pyrogram import filters, Client, errors, enums
 from pyrogram.errors import UserNotParticipant, FloodWait
@@ -18,9 +19,12 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
+# Create unique session name for different environments
+session_name = f"approver_{os.getenv('RAILWAY_ENVIRONMENT', 'local')}_{hash(cfg.BOT_TOKEN) % 10000}"
+
 # Initialize bot client
 app = Client(
-    "approver",
+    session_name,
     api_id=cfg.API_ID,
     api_hash=cfg.API_HASH,
     bot_token=cfg.BOT_TOKEN
