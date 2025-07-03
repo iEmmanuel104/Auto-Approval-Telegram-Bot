@@ -42,7 +42,7 @@ async def approve(_, m: Message):
         await app.approve_chat_join_request(op.id, kk.id)
         
         # Send welcome message
-        welcome_msg = f"**Hello {m.from_user.mention}!\nWelcome To {m.chat.title}\n\n__Powered By : @AutoBot__**"
+        welcome_msg = f"**Hello {m.from_user.mention}!\nWelcome To {m.chat.title}**"
         await app.send_message(kk.id, welcome_msg)
         
         add_user(kk.id)
@@ -96,10 +96,9 @@ async def start_command(_, m: Message):
     
     welcome_text = (
         f"**🦊 Hello {m.from_user.mention}!\n"
-        f"I'm an auto approve [Admin Join Requests](https://t.me/telegram/153) Bot.\n"
+        f"I'm an auto approve Bot.\n"
         f"I can approve users in Groups/Channels. Add me to your chat and promote me to admin "
         f"with add members permission.\n\n"
-        f"__Powered By : @AutoBot__**"
     )
     
     await m.reply_photo(
@@ -135,10 +134,9 @@ async def check_subscription(_, cb: CallbackQuery):
     
     welcome_text = (
         f"**🦊 Hello {cb.from_user.mention}!\n"
-        f"I'm an auto approve [Admin Join Requests](https://t.me/telegram/153) Bot.\n"
+        f"I'm an auto approve Bot.\n"
         f"I can approve users in Groups/Channels. Add me to your chat and promote me to admin "
         f"with add members permission.\n\n"
-        f"__Powered By : @AutoBot__**"
     )
     
     await cb.edit_message_text(text=welcome_text, reply_markup=keyboard)

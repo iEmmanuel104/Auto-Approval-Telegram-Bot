@@ -19,8 +19,8 @@ class Config:
     MONGO_URI: str = os.getenv("MONGO_URI", "")
     
     # Optional URLs
-    CHANNEL_URL: str = os.getenv("CHANNEL_URL", "https://t.me/AutoBot")
-    SUPPORT_URL: str = os.getenv("SUPPORT_URL", "https://t.me/AutoBot")
+    CHANNEL_URL: str = os.getenv("CHANNEL_URL", "https://t.me/xxxx")
+    SUPPORT_URL: str = os.getenv("SUPPORT_URL", "https://t.me/xxxx")
     
     # Validation
     @classmethod
