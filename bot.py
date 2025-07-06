@@ -89,7 +89,8 @@ async def send_setup_instructions(user_id: int, first_name: str):
     setup_text = cfg.SETUP_INSTRUCTIONS.format(
         first_name=first_name,
         deposit_guide_link=cfg.DEPOSIT_GUIDE_LINK,
-        results_channel_link=cfg.RESULTS_CHANNEL_LINK
+        results_channel_link=cfg.RESULTS_CHANNEL_LINK,
+        support_username=cfg.SUPPORT_USERNAME
     )
     
     try:
