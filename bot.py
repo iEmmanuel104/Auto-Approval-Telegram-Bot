@@ -101,7 +101,11 @@ async def send_setup_instructions(user_id: int, first_name: str):
 
 async def send_support_message(user_id: int):
     """Send support message"""
-    support_text = cfg.SUPPORT_MESSAGE.format(support_username=cfg.SUPPORT_USERNAME)
+    support_text = cfg.SUPPORT_MESSAGE.format(
+        support_username=cfg.SUPPORT_USERNAME,
+        deposit_guide_link=cfg.DEPOSIT_GUIDE_LINK,
+        results_channel_link=cfg.RESULTS_CHANNEL_LINK
+    )
     
     try:
         await app.send_message(user_id, support_text)
