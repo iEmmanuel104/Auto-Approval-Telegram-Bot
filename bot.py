@@ -43,6 +43,25 @@ app = Client(
 # Initialize scheduler
 scheduler = AsyncIOScheduler()
 
+#━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Debug Handler (Priority) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+@app.on_message(filters.command("test") & filters.private)
+async def test_admin_priority(_, m: Message):
+    """Test admin permissions - Priority Handler"""
+    user_id = m.from_user.id
+    logger.info(f"🔍 PRIORITY: /test command from user {user_id}")
+    logger.info(f"🔍 PRIORITY: cfg.SUDO contains: {cfg.SUDO}")
+    logger.info(f"🔍 PRIORITY: Is {user_id} in SUDO? {user_id in cfg.SUDO}")
+    
+    try:
+        if user_id in cfg.SUDO:
+            await m.reply_text(f"✅ You are an admin! Your ID: {user_id}")
+        else:
+            await m.reply_text(f"❌ You are not an admin. Your ID: {user_id}\nAdmin IDs: {cfg.SUDO}")
+    except Exception as e:
+        logger.error(f"Error in test command: {e}")
+        await m.reply_text(f"Error: {e}")
+
 #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Onboarding Flow ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 async def send_welcome_message(user_id: int, first_name: str):
@@ -127,14 +146,14 @@ async def send_3hour_follow_up(user_id: int, first_name: str):
 async def process_follow_ups():
     """Process scheduled follow-ups"""
     try:
-        # Process 1-hour follow-ups
-        users_1h = get_users_for_follow_up("1h", 1)
-        for user in users_1h:
+        # Process 1-minute follow-ups (configurable)
+        users_1m = get_users_for_follow_up("1h", cfg.FOLLOW_UP_1_MINUTES)
+        for user in users_1m:
             await send_1hour_follow_up(int(user["user_id"]))
         
-        # Process 3-hour follow-ups
-        users_3h = get_users_for_follow_up("3h", 3)
-        for user in users_3h:
+        # Process 3-minute follow-ups (configurable)
+        users_3m = get_users_for_follow_up("3h", cfg.FOLLOW_UP_3_MINUTES)
+        for user in users_3m:
             await send_3hour_follow_up(int(user["user_id"]), user["first_name"])
             
     except Exception as e:
@@ -144,7 +163,7 @@ async def process_follow_ups():
 
 @app.on_chat_join_request(filters.group | filters.channel)
 async def approve(_, m: Message):
-    """Auto-approve chat join requests"""
+    """Auto-approve chat join requests and start onboarding flow"""
     op = m.chat
     kk = m.from_user
     try:
@@ -152,27 +171,79 @@ async def approve(_, m: Message):
         await app.approve_chat_join_request(op.id, kk.id)
         
         add_user(kk.id)
+        
+        # Start onboarding flow for new users (skip if admin)
+        user_id = kk.id
+        first_name = kk.first_name or "Friend"
+        
+        # Skip onboarding for admins
+        if user_id in cfg.SUDO:
+            logger.info(f"Skipping onboarding for admin user {user_id}")
+            logger.info(f"Approved join request for admin user {kk.id} in chat {op.id}")
+            return
+        
+        if not already_onboarding(user_id):
+            # New user - start onboarding
+            add_onboarding_user(user_id, first_name)
+            
+            # Try to send welcome message (will fail if user hasn't started bot)
+            try:
+                await send_welcome_message(user_id, first_name)
+                
+                # Send immediate follow-up after a short delay
+                await asyncio.sleep(2)
+                await send_immediate_follow_up(user_id)
+                
+                # Update stage to indicate welcome was sent
+                update_onboarding_stage(user_id, "welcome_actually_sent")
+                logger.info(f"Started onboarding for user {user_id} after auto-approval")
+                
+            except errors.PeerIdInvalid:
+                logger.warning(f"User {user_id} hasn't started the bot - will send welcome when they message us")
+            except Exception as e:
+                logger.error(f"Error sending welcome message to {user_id}: {e}")
+        
         logger.info(f"Approved join request for user {kk.id} in chat {op.id}")
         
-    except errors.PeerIdInvalid:
-        logger.warning(f"User {kk.id} hasn't started the bot")
     except Exception as err:
         logger.error(f"Error approving join request: {str(err)}")
 
 #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ New User Detection ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-@app.on_message(filters.private & filters.incoming)
+@app.on_message(filters.private & filters.incoming & ~filters.command(["start", "users", "bcast", "fcast", "test"]))
 async def handle_new_user(_, m: Message):
     """Handle new users and trigger onboarding"""
     user_id = m.from_user.id
     first_name = m.from_user.first_name or "Friend"
     
-    # Skip if it's a command or user is already in onboarding
+    # Skip if it's a command (additional safety check)
     if m.text and m.text.startswith('/'):
+        logger.info(f"🔍 DEBUG: Skipping command in handle_new_user: {m.text}")
         return
     
-    if not already_onboarding(user_id):
-        # New user - start onboarding
+    # Skip onboarding for admins
+    if user_id in cfg.SUDO:
+        logger.info(f"Skipping onboarding for admin user {user_id} in private message")
+        return
+    
+    # Check if user is in onboarding
+    if already_onboarding(user_id):
+        user_data = get_onboarding_user(user_id)
+        if user_data and user_data.get("onboarding_stage") == "welcome_sent":
+            # User was auto-approved but welcome message wasn't sent due to PeerIdInvalid
+            # Now they've messaged the bot, so we can send the onboarding flow
+            await send_welcome_message(user_id, first_name)
+            
+            # Send immediate follow-up after a short delay
+            await asyncio.sleep(2)
+            await send_immediate_follow_up(user_id)
+            
+            # Update stage to indicate welcome was actually sent
+            update_onboarding_stage(user_id, "welcome_actually_sent")
+            logger.info(f"Sent delayed welcome message to user {user_id}")
+        # If they already got welcome message, do nothing (avoid spam)
+    else:
+        # Completely new user who didn't come through channel approval
         add_onboarding_user(user_id, first_name)
         add_user(user_id)
         
@@ -183,6 +254,8 @@ async def handle_new_user(_, m: Message):
         await asyncio.sleep(2)
         await send_immediate_follow_up(user_id)
         
+        # Update stage
+        update_onboarding_stage(user_id, "welcome_actually_sent")
         logger.info(f"Started onboarding for new user {user_id}")
 
 #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Start Command ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -192,6 +265,12 @@ async def start_command(_, m: Message):
     """Handle /start command"""
     user_id = m.from_user.id
     first_name = m.from_user.first_name or "Friend"
+    
+    # Skip onboarding for admins
+    if user_id in cfg.SUDO:
+        await m.reply_text("👋 Welcome back, Admin!")
+        logger.info(f"Admin {user_id} used /start command")
+        return
     
     # Check if user is member of required channel
     try:
@@ -219,9 +298,18 @@ async def start_command(_, m: Message):
         )
         return
     
-    # User is authorized - check if they're in onboarding
-    if not already_onboarding(user_id):
-        # New user - start onboarding
+    # User is authorized - check onboarding status
+    if already_onboarding(user_id):
+        user_data = get_onboarding_user(user_id)
+        if user_data and user_data.get("onboarding_stage") == "welcome_sent":
+            # User was auto-approved but welcome message wasn't sent yet
+            # Send welcome message first
+            await send_welcome_message(user_id, first_name)
+            await asyncio.sleep(2)
+            await send_immediate_follow_up(user_id)
+            await asyncio.sleep(2)
+    else:
+        # Completely new user - start onboarding
         add_onboarding_user(user_id, first_name)
         add_user(user_id)
         
@@ -229,6 +317,7 @@ async def start_command(_, m: Message):
         await send_welcome_message(user_id, first_name)
         await asyncio.sleep(2)
         await send_immediate_follow_up(user_id)
+        await asyncio.sleep(2)
     
     # Send setup instructions
     await send_setup_instructions(user_id, first_name)
@@ -259,9 +348,24 @@ async def check_subscription(_, cb: CallbackQuery):
         )
         return
     
-    # User verified - check if they're in onboarding
-    if not already_onboarding(user_id):
-        # New user - start onboarding
+    # Skip onboarding for admins
+    if user_id in cfg.SUDO:
+        await cb.edit_message_text("👋 Welcome back, Admin!")
+        logger.info(f"Admin {user_id} verified subscription")
+        return
+    
+    # User verified - check onboarding status
+    if already_onboarding(user_id):
+        user_data = get_onboarding_user(user_id)
+        if user_data and user_data.get("onboarding_stage") == "welcome_sent":
+            # User was auto-approved but welcome message wasn't sent yet
+            # Send welcome message first
+            await send_welcome_message(user_id, first_name)
+            await asyncio.sleep(2)
+            await send_immediate_follow_up(user_id)
+            await asyncio.sleep(2)
+    else:
+        # Completely new user - start onboarding
         add_onboarding_user(user_id, first_name)
         add_user(user_id)
         
@@ -269,6 +373,7 @@ async def check_subscription(_, cb: CallbackQuery):
         await send_welcome_message(user_id, first_name)
         await asyncio.sleep(2)
         await send_immediate_follow_up(user_id)
+        await asyncio.sleep(2)
     
     # Send setup instructions
     await send_setup_instructions(user_id, first_name)
@@ -319,10 +424,13 @@ async def setup_no_callback(_, cb: CallbackQuery):
 
 #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Admin Commands ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+
+
 @app.on_message(filters.command("users") & filters.user(cfg.SUDO))
 async def get_stats(_, m: Message):
     """Get bot statistics (admin only)"""
     try:
+        logger.info(f"Stats command triggered by user {m.from_user.id}")
         xx = all_users()
         x = all_groups()
         tot = int(xx + x)
@@ -346,6 +454,7 @@ async def get_stats(_, m: Message):
 @app.on_message(filters.command("bcast") & filters.user(cfg.SUDO))
 async def broadcast(_, m: Message):
     """Broadcast message to all users (admin only)"""
+    logger.info(f"Broadcast command triggered by user {m.from_user.id}")
     if not m.reply_to_message:
         await m.reply_text("Please reply to a message to broadcast.")
         return
@@ -389,6 +498,7 @@ async def broadcast(_, m: Message):
 @app.on_message(filters.command("fcast") & filters.user(cfg.SUDO))
 async def forward_broadcast(_, m: Message):
     """Forward message to all users (admin only)"""
+    logger.info(f"Forward broadcast command triggered by user {m.from_user.id}")
     if not m.reply_to_message:
         await m.reply_text("Please reply to a message to forward.")
         return
@@ -436,7 +546,7 @@ if __name__ == "__main__":
         # Start scheduler
         scheduler.add_job(
             process_follow_ups,
-            IntervalTrigger(minutes=10),  # Check every 10 minutes
+            IntervalTrigger(seconds=30),  # Check every 30 seconds for testing
             id='follow_up_processor',
             replace_existing=True
         )

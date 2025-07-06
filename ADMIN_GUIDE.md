@@ -23,6 +23,11 @@ RESULTS_CHANNEL_LINK=https://t.me/yourresults
 SUPPORT_USERNAME=yoursupport
 DIRECT_CONTACT_USERNAME=yourcontact
 PROMO_CODE=YOURCODE100
+
+# Timing Configuration (in minutes)
+FOLLOW_UP_1_MINUTES=1    # First follow-up after 1 minute (for testing)
+FOLLOW_UP_3_MINUTES=3    # Second follow-up after 3 minutes (for testing)
+# For production, use: 60 and 180 (1 hour and 3 hours)
 ```
 
 ### 2. Custom Messages
@@ -183,6 +188,12 @@ db.onboarding.find({
    - [ ] Test `/bcast` with a sample message
    - [ ] Test `/fcast` with a sample message
 
+5. **Test Follow-up Timing:**
+   - [ ] Set `FOLLOW_UP_1_MINUTES=1` and `FOLLOW_UP_3_MINUTES=3` for testing
+   - [ ] Test with a new user account
+   - [ ] Wait 1-3 minutes to see follow-up messages
+   - [ ] For production, change to `60` and `180` (1 and 3 hours)
+
 ---
 
 ## 🔧 Troubleshooting
@@ -200,6 +211,8 @@ db.onboarding.find({
 **Follow-ups not sending:**
 - Check if scheduler is running (should see "Scheduler started" in logs)
 - Verify MongoDB connection is working
+- For testing: Bot checks every 30 seconds, so follow-ups may take up to 30 seconds to send
+- For production: Consider changing scheduler interval to `IntervalTrigger(minutes=10)`
 
 **Environment variables not loading:**
 - Make sure `.env` file is in the same directory as `bot.py`

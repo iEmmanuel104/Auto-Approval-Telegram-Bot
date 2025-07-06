@@ -99,10 +99,10 @@ def mark_account_verified(user_id, verified=True):
         {"$set": {"account_verified": verified}}
     )
 
-def get_users_for_follow_up(follow_up_type, hours_ago):
+def get_users_for_follow_up(follow_up_type, minutes_ago):
     """Get users who need follow-up messages"""
     utc = pytz.UTC
-    cutoff_time = datetime.now(utc) - timedelta(hours=hours_ago)
+    cutoff_time = datetime.now(utc) - timedelta(minutes=minutes_ago)
     
     field = f"follow_up_{follow_up_type}_sent"
     

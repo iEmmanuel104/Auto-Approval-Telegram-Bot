@@ -1,0 +1,103 @@
+{
+  "graceboy": {
+    "bot_config": {
+      "bot_name": "Graceboy Trading Bot",
+      "deposit_guide_link": "https://t.me/graceboydeposit/3",
+      "results_channel_link": "https://t.me/Graceboytrading",
+      "support_username": "graceboysupport",
+      "direct_contact_username": "graceboylive",
+      "promo_code": "GRACEBOY100",
+      "channel_url": "https://t.me/graceboytrading",
+      "support_url": "https://t.me/graceboysupport"
+    },
+    "timing": {
+      "follow_up_1_minutes": 60,
+      "follow_up_3_minutes": 180
+    },
+    "messages": {
+      "welcome_message": "Welcome, {first_name}!\n\nThis is the exact system that changed my life entirely as well as thousands of others….same system I used to charge over $1k for — and now, I'm giving it to you for FREE.\n\nautomatic signal delivery straight from my private bot with over 90% WIN Accuracy\n\nThis opportunity won't stay FREE forever. Once access closes, IT'S DONE.\n\nClick 👉 /start now to get FREE ACCESS IMMEDIATELY",
+      
+      "immediate_follow_up": "Click 👉 /start now — get the bot plugged in and start catching real-time trades.\n\nAccess is limited. Don't be the one watching from outside.",
+      
+      "setup_instructions": "🔥 You made it in, {first_name}!\n\nLet's plug you into the system properly:\n\nYou know you need a Trading account to Access my Bot right?? You need to be ready \n\nCreating your trading account isn't hard, but I have provided you a detailed step by Step Guide to achieve that below 👇\n\n{deposit_guide_link}\n\nOnly serious ones get access, so a minimum of $20 deposit on your personal trading would grant you FREE Access\n\nInfact, you can join my public telegram I opened recently where I share RESULTS 👇\n\n{results_channel_link}",
+      
+      "support_message": "📍 Immediate Message\n\nSend a screenshot of your account + deposit proof to my support team 👉 @{support_username}\n\nOnce they verify, the signal bot will be activated immediately and start delivering trades to you 24/7.\n\nThis is a one-time setup.\n\nAfter this, you're officially in.",
+      
+      "follow_up_1h": "Hey 👋\n\nJust checking in — have you created your account and sent proof to support yet?",
+      
+      "follow_up_3h": "Hey again, {first_name}!\n\nJust checking one last time.\n\nIf you got stuck or have questions, reach out to me directly here @{direct_contact_username}\n\nLet's not waste time — this bot is literally printing results every day.\n\nYou either plug in or watch others eat.\n\nYou need the Step by step guide to setting up your account? Here 👇\n\n{deposit_guide_link}",
+      
+      "setup_completed_msg": "Perfect.\n\nYou're officially inside. Stay locked in — signals are already flowing, and we're entering new trades soon.\n\nYou're good now.\n\nJust follow what the bot tells you.",
+      
+      "setup_reminder_msg": "Let's wrap it up right now ✅\n\nHere's the Step by Step setup guide to creating your trading account to get you ready👇\n\n👉 {deposit_guide_link}\n\nDon't forget the promo code: {promo_code} for up to 150% bonus.\n\nAfter funding, send proof to @{support_username} so we activate the bot for you."
+    }
+  },
+
+  "policee": {
+    "bot_config": {
+      "bot_name": "Policee Trading Room Bot",
+      "deposit_guide_link": "https://t.me/policeedeposit/4",
+      "results_channel_link": "https://t.me/policeethetrader",
+      "support_username": "policeesupport",
+      "direct_contact_username": "policeeone",
+      "promo_code": "SIGNALACCESS",
+      "channel_url": "https://t.me/policeethetrader",
+      "support_url": "https://t.me/policeesupport"
+    },
+    "timing": {
+      "follow_up_1_minutes": 60,
+      "follow_up_3_minutes": 180
+    },
+    "messages": {
+      "welcome_message": "Welcome, {first_name}! 🚀\n\nThis is your shot to enter my trading room — where thousands copy my exact trades every single day.\n\nYou don't need any trading experience. I've made it so simple that even a total beginner can get results.\n\n✅ Just fund $30 or more into your trading account\n✅ Get full access FREE for 4 straight months\n✅ Copy my trades automatically or follow my guide\n\nBut this won't stay free forever — once access closes, it's gone.\n\nClick 👉 /start now so I can plug you into the trading room immediately 👉 /start\n\nDon't miss this wave. The room is moving fast.",
+      
+      "immediate_follow_up": "So click 👉 /start now — I'll get you in immediately.\n\nWe're about to begin the next session.",
+      
+      "setup_instructions": "Great, {first_name}! You've just taken a solid step 🚀\n\nNow, let's get you inside the trading room ✅\n\nStep 1: Send the word SIGNALROOMACCESS to my support team 👉 @{support_username}\n\nThis lets them prepare your special access link immediately.\n\n⚠️ Don't wait for a reply — just come back here right after sending it.\n\nStep 2: Create your trading account and fund it (they'll ask for proof).\n\nTap the link below 👇 to get the steps.. it comes with all guides..\n\n{deposit_guide_link}",
+      
+      "support_message": "In order not to keep this dm flooded,\n\nThe steps to create account including link is in this 👉 {deposit_guide_link}\n\nI only take it in people who are serious to trade and I do it live…\n\nInfact, you can join my public telegram I opened recently where I share results 👇\n\n{results_channel_link}",
+      
+      "follow_up_1h": "Hi there 👋\n\nJust checking in…\n\nHave you created your trading account and joined the signal room yet?",
+      
+      "follow_up_3h": "Hey {first_name}! 👋 Just checking in again —\n\nin case you got stuck or need help with anything.\n\nFeel free to reach out to me directly here:\n\n👉 @{direct_contact_username} (my personal account)\n\nI'm here to assist if you need anything or have questions.\n\nLet's get you fully set up and trading soon! 🚀",
+      
+      "setup_completed_msg": "Awesome! 🚀\n\nYou're all set. Make sure you stay active in the signal room — the next live trade session kicks off soon!\n\nIf you funded already, expect results. If not, make sure to fund now so you don't miss out!",
+      
+      "setup_reminder_msg": "No worries! Let's fix that now ✅\n\nUse the link below to create your trading account and follow the full setup guide in the channel:\n\n👉 {deposit_guide_link}\n\nAfter that, send SIGNALACCESS to @{support_username} so they can prepare your access.\n\nLet me know once you're done! 🔥"
+    }
+  },
+
+  "wilfred": {
+    "bot_config": {
+      "bot_name": "Wilfred Trading Room Bot",
+      "deposit_guide_link": "https://t.me/wilfreddeposit/3",
+      "results_channel_link": "https://t.me/wilfredshaffa",
+      "support_username": "Wilfredsupport",
+      "direct_contact_username": "Wilfredshaffa1",
+      "promo_code": "SIGNALACCESS",
+      "channel_url": "https://t.me/wilfredshaffa",
+      "support_url": "https://t.me/Wilfredsupport"
+    },
+    "timing": {
+      "follow_up_1_minutes": 60,
+      "follow_up_3_minutes": 180
+    },
+    "messages": {
+      "welcome_message": "Welcome, {first_name}! 🚀\n\nThis is your shot to enter my trading room — where thousands copy my exact trades every single day.\n\nYou don't need any trading experience. I've made it so simple that even a total beginner can get results.\n\n✅ Just fund $30 or more into your trading account\n✅ Get full access FREE for 4 straight months\n✅ Copy my trades automatically or follow my guide\n\nBut this won't stay free forever — once access closes, it's gone.\n\nClick 👉 /start now so I can plug you into the trading room immediately 👉 /start\n\nDon't miss this wave. The room is moving fast.",
+      
+      "immediate_follow_up": "So click 👉 /start now — I'll get you in immediately.\n\nWe're about to begin the next session.",
+      
+      "setup_instructions": "Great, {first_name}! You've just taken a solid step 🚀\n\nNow, let's get you inside the trading room ✅\n\nStep 1: Send the word SIGNALROOMACCESS to my support team 👉 @{support_username}\n\nThis lets them prepare your special access link immediately.\n\n⚠️ Don't wait for a reply — just come back here right after sending it.\n\nStep 2: Create your trading account and fund it (they'll ask for proof).\n\nTap the link below 👇 to get the steps.. it comes with all guides..\n\n{deposit_guide_link}",
+      
+      "support_message": "In order not to keep this dm flooded,\n\nThe steps to create an account including link is in this 👉 {deposit_guide_link}\n\nI only take it in people who are serious to trade and I do it live…\n\nInfact, you can join my public telegram I opened recently where I share results 👉\n\n{results_channel_link}",
+      
+      "follow_up_1h": "Hi there 👋\n\nJust checking in…\n\nHave you created your trading account and joined the signal room yet?",
+      
+      "follow_up_3h": "Hey {first_name}! 👋 Just checking in again —\n\nin case you got stuck or need help with anything.\n\nFeel free to reach out to me directly here:\n\n👉 @{direct_contact_username} (my personal account)\n\nI'm here to assist if you need anything or have questions.\n\nLet's get you fully set up and trading soon! 🚀",
+      
+      "setup_completed_msg": "Awesome! 🚀\n\nYou're all set. Make sure you stay active in the signal room — the next live trade session kicks off soon!\n\nIf you funded already, expect results. If not, make sure to fund now so you don't miss out!",
+      
+      "setup_reminder_msg": "No worries! Let's fix that now ✅\n\nUse the link below to see the steps in creating your Trading account and follow the full setup guide:\n\n👉 {deposit_guide_link}\n\nAfter that, send SIGNALACCESS to @{support_username} so they can prepare your access.\n\nLet me know once you're done! 🔥"
+    }
+  }
+} 

@@ -1,0 +1,19 @@
+# Essential Bot Configuration Only
+# Copy this to .env and fill in your values
+
+API_ID=1234567
+API_HASH=abcdef123456789
+BOT_TOKEN=1234567890:ABC-DEF1234567890
+CHID=-1001234567890
+SUDO=123456789
+MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/database
+
+# Bot Owner Configuration (choose one: graceboy, policee, wilfred)
+BOT_OWNER=graceboy
+
+# Optional: Override timing for testing
+FOLLOW_UP_1_MINUTES=1
+FOLLOW_UP_3_MINUTES=3
+
+# All messages and branding are now loaded from config.json namespaces
+# Just change BOT_OWNER to switch entire bot personality! 
