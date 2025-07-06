@@ -274,13 +274,16 @@ async def start_command(_, m: Message):
     
     # Check if user is member of required channel
     try:
-        await app.get_chat_member(cfg.CHID, user_id)
+        print("🔍 DEBUG: User is member of required channel")
+        # await send_setup_instructions(user_id, first_name)
+        # await app.get_chat_member(cfg.CHID, user_id)
     except:
         try:
             invite_link = await app.create_chat_invite_link(int(cfg.CHID))
         except Exception as e:
             logger.error(f"Error creating invite link: {str(e)}")
-            await m.reply("**Make Sure I Am Admin In Your Channel**")
+            # await m.reply("**Make Sure I Am Admin In Your Channel**")
+            await m.reply("**Welcome**")
             return
         
         key = InlineKeyboardMarkup([
