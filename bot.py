@@ -47,8 +47,10 @@ scheduler = AsyncIOScheduler()
 
 @app.on_message(filters.command("test") & filters.private)
 async def test_admin_priority(_, m: Message):
-    """Test admin permissions - Priority Handler"""
+    """Test admin permissions and message functionality"""
     user_id = m.from_user.id
+    first_name = m.from_user.first_name or "Friend"
+    
     logger.info(f"🔍 PRIORITY: /test command from user {user_id}")
     logger.info(f"🔍 PRIORITY: cfg.SUDO contains: {cfg.SUDO}")
     logger.info(f"🔍 PRIORITY: Is {user_id} in SUDO? {user_id in cfg.SUDO}")
@@ -56,8 +58,28 @@ async def test_admin_priority(_, m: Message):
     try:
         if user_id in cfg.SUDO:
             await m.reply_text(f"✅ You are an admin! Your ID: {user_id}")
+            
+            # Test welcome message functionality
+            try:
+                logger.info(f"🔍 DEBUG: Testing welcome message for admin {user_id}")
+                await send_welcome_message(user_id, first_name)
+                await m.reply_text("✅ Welcome message test: SUCCESS")
+            except Exception as e:
+                logger.error(f"🔍 DEBUG: Welcome message test failed: {e}")
+                await m.reply_text(f"❌ Welcome message test: FAILED - {e}")
+                
         else:
             await m.reply_text(f"❌ You are not an admin. Your ID: {user_id}\nAdmin IDs: {cfg.SUDO}")
+            
+            # Test welcome message for regular user
+            try:
+                logger.info(f"🔍 DEBUG: Testing welcome message for user {user_id}")
+                await send_welcome_message(user_id, first_name)
+                await m.reply_text("✅ Welcome message test: SUCCESS")
+            except Exception as e:
+                logger.error(f"🔍 DEBUG: Welcome message test failed: {e}")
+                await m.reply_text(f"❌ Welcome message test: FAILED - {e}")
+                
     except Exception as e:
         logger.error(f"Error in test command: {e}")
         await m.reply_text(f"Error: {e}")
@@ -171,11 +193,17 @@ async def approve(_, m: Message):
     """Auto-approve chat join requests and start onboarding flow"""
     op = m.chat
     kk = m.from_user
+    logger.info(f"🔍 DEBUG: Join request received from user {kk.id} ({kk.first_name}) in chat {op.id} ({op.title})")
+    
     try:
         add_group(m.chat.id)
+        logger.info(f"🔍 DEBUG: Added group {op.id} to database")
+        
         await app.approve_chat_join_request(op.id, kk.id)
+        logger.info(f"🔍 DEBUG: Approved join request for user {kk.id}")
         
         add_user(kk.id)
+        logger.info(f"🔍 DEBUG: Added user {kk.id} to database")
         
         # Start onboarding flow for new users (skip if admin)
         user_id = kk.id
@@ -183,35 +211,50 @@ async def approve(_, m: Message):
         
         # Skip onboarding for admins
         if user_id in cfg.SUDO:
-            logger.info(f"Skipping onboarding for admin user {user_id}")
+            logger.info(f"🔍 DEBUG: Skipping onboarding for admin user {user_id}")
             logger.info(f"Approved join request for admin user {kk.id} in chat {op.id}")
             return
         
+        logger.info(f"🔍 DEBUG: Starting onboarding process for user {user_id}")
+        
         if not already_onboarding(user_id):
+            logger.info(f"🔍 DEBUG: User {user_id} is not already onboarding - creating new onboarding record")
             # New user - start onboarding
             add_onboarding_user(user_id, first_name)
+            logger.info(f"🔍 DEBUG: Added user {user_id} to onboarding database")
             
             # Try to send welcome message (will fail if user hasn't started bot)
             try:
+                logger.info(f"🔍 DEBUG: Attempting to send welcome message to user {user_id}")
                 await send_welcome_message(user_id, first_name)
+                logger.info(f"🔍 DEBUG: Welcome message sent successfully to user {user_id}")
                 
                 # Send immediate follow-up after a short delay
                 await asyncio.sleep(2)
+                logger.info(f"🔍 DEBUG: Sending immediate follow-up to user {user_id}")
                 await send_immediate_follow_up(user_id)
+                logger.info(f"🔍 DEBUG: Immediate follow-up sent to user {user_id}")
                 
                 # Update stage to indicate welcome was sent
                 update_onboarding_stage(user_id, "welcome_actually_sent")
+                logger.info(f"🔍 DEBUG: Updated onboarding stage for user {user_id} to 'welcome_actually_sent'")
                 logger.info(f"Started onboarding for user {user_id} after auto-approval")
                 
             except errors.PeerIdInvalid:
-                logger.warning(f"User {user_id} hasn't started the bot - will send welcome when they message us")
+                logger.warning(f"🔍 DEBUG: PeerIdInvalid - User {user_id} hasn't started the bot - will send welcome when they message us")
+                # update_onboarding_stage(user_id, "welcome_sent")
+                logger.info(f"🔍 DEBUG: Updated onboarding stage for user {user_id} to 'welcome_sent' (pending)")
             except Exception as e:
-                logger.error(f"Error sending welcome message to {user_id}: {e}")
+                logger.error(f"🔍 DEBUG: Error sending welcome message to {user_id}: {e}")
+                logger.exception("Full exception details:")
+        else:
+            logger.info(f"🔍 DEBUG: User {user_id} already has onboarding record")
         
-        logger.info(f"Approved join request for user {kk.id} in chat {op.id}")
+        logger.info(f"🔍 DEBUG: Approval process completed for user {kk.id} in chat {op.id}")
         
     except Exception as err:
-        logger.error(f"Error approving join request: {str(err)}")
+        logger.error(f"🔍 DEBUG: Error in approval process: {str(err)}")
+        logger.exception("Full exception details:")
 
 #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ New User Detection ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
