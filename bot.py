@@ -113,6 +113,42 @@ async def reset_onboarding_command(_, m: Message):
         logger.error(f"Error in reset onboarding command: {e}")
         await m.reply_text(f"Error: {e}")
 
+@app.on_message(filters.command("testbuttons") & filters.user(cfg.SUDO))
+async def test_buttons_command(_, m: Message):
+    """Test button functionality (admin only)"""
+    user_id = m.from_user.id
+    
+    try:
+        # Create test buttons
+        keyboard = InlineKeyboardMarkup([
+            [
+                InlineKeyboardButton("✅ Test Yes", callback_data="setup_yes"),
+                InlineKeyboardButton("❌ Test No", callback_data="setup_no")
+            ],
+            [
+                InlineKeyboardButton("🔄 Test Check", callback_data="chk")
+            ]
+        ])
+        
+        test_message = """
+🧪 **Button Test for Admin**
+
+Click the buttons below to test the callback functionality:
+
+• **Test Yes** - Should show setup completion message
+• **Test No** - Should show setup reminder message  
+• **Test Check** - Should test subscription verification
+
+This is for debugging purposes only.
+        """
+        
+        await m.reply_text(test_message, reply_markup=keyboard)
+        logger.info(f"Admin {user_id} initiated button test")
+        
+    except Exception as e:
+        logger.error(f"Error in test buttons command: {e}")
+        await m.reply_text(f"Error: {e}")
+
 #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Onboarding Flow ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 async def send_welcome_message(user_id: int, first_name: str):
@@ -422,9 +458,13 @@ async def check_subscription(_, cb: CallbackQuery):
     user_id = cb.from_user.id
     first_name = cb.from_user.first_name or "Friend"
     
+    logger.info(f"🔍 DEBUG: User {user_id} clicked 'Check Again' button")
+    
     try:
         await app.get_chat_member(cfg.CHID, user_id)
-    except:
+        logger.info(f"🔍 DEBUG: User {user_id} is verified as channel member")
+    except Exception as e:
+        logger.info(f"🔍 DEBUG: User {user_id} is not a channel member: {e}")
         await cb.answer(
             "🙅‍♂️ You are not joined my channel first join channel then check again. 🙅‍♂️",
             show_alert=True
@@ -468,7 +508,17 @@ async def check_subscription(_, cb: CallbackQuery):
     # Update onboarding stage
     update_onboarding_stage(user_id, "verified")
     
-    await cb.edit_message_text("✅ Welcome! Check your messages for setup instructions.")
+    try:
+        await cb.edit_message_text("✅ Welcome! Check your messages for setup instructions.")
+        logger.info(f"🔍 DEBUG: Successfully edited subscription verification message for user {user_id}")
+    except Exception as e:
+        logger.error(f"🔍 DEBUG: Error editing subscription verification message for user {user_id}: {e}")
+        # Try to answer callback if editing failed
+        try:
+            await cb.answer("✅ Welcome! Check your private messages for setup instructions.", show_alert=True)
+        except:
+            pass
+    
     logger.info(f"User {user_id} verified subscription")
 
 @app.on_callback_query(filters.regex("setup_yes"))
@@ -476,34 +526,68 @@ async def setup_yes_callback(_, cb: CallbackQuery):
     """Handle 'Yes, I have' callback"""
     user_id = cb.from_user.id
     
-    response_text = cfg.SETUP_COMPLETED_MSG
-    
-    await cb.edit_message_text(response_text)
-    
-    # Mark as completed
-    mark_setup_completed(user_id, True)
-    mark_account_verified(user_id, True)
-    update_onboarding_stage(user_id, "completed")
-    
-    logger.info(f"User {user_id} confirmed setup completion")
+    try:
+        logger.info(f"🔍 DEBUG: User {user_id} clicked 'Yes, I have' button")
+        
+        response_text = cfg.SETUP_COMPLETED_MSG
+        
+        # Try to edit the message
+        await cb.edit_message_text(response_text)
+        logger.info(f"🔍 DEBUG: Successfully edited message for user {user_id}")
+        
+        # Mark as completed
+        mark_setup_completed(user_id, True)
+        mark_account_verified(user_id, True)
+        update_onboarding_stage(user_id, "completed")
+        
+        logger.info(f"User {user_id} confirmed setup completion")
+        
+        # Send confirmation callback answer
+        await cb.answer("✅ Great! Setup completed successfully!", show_alert=False)
+        
+    except Exception as e:
+        logger.error(f"🔍 DEBUG: Error in setup_yes_callback for user {user_id}: {e}")
+        logger.exception("Full exception details:")
+        # Try to answer the callback even if editing failed
+        try:
+            await cb.answer("❌ Error processing your response. Please try again.", show_alert=True)
+        except:
+            pass
 
 @app.on_callback_query(filters.regex("setup_no"))
 async def setup_no_callback(_, cb: CallbackQuery):
     """Handle 'No, not yet' callback"""
     user_id = cb.from_user.id
     
-    response_text = cfg.SETUP_REMINDER_MSG.format(
-        deposit_guide_link=cfg.DEPOSIT_GUIDE_LINK,
-        promo_code=cfg.PROMO_CODE,
-        support_username=cfg.SUPPORT_USERNAME
-    )
-    
-    await cb.edit_message_text(response_text)
-    
-    # Update stage but don't mark as completed
-    update_onboarding_stage(user_id, "setup_reminder_sent")
-    
-    logger.info(f"User {user_id} needs setup reminder")
+    try:
+        logger.info(f"🔍 DEBUG: User {user_id} clicked 'No, not yet' button")
+        
+        response_text = cfg.SETUP_REMINDER_MSG.format(
+            deposit_guide_link=cfg.DEPOSIT_GUIDE_LINK,
+            promo_code=cfg.PROMO_CODE,
+            support_username=cfg.SUPPORT_USERNAME
+        )
+        
+        # Try to edit the message
+        await cb.edit_message_text(response_text)
+        logger.info(f"🔍 DEBUG: Successfully edited message for user {user_id}")
+        
+        # Update stage but don't mark as completed
+        update_onboarding_stage(user_id, "setup_reminder_sent")
+        
+        logger.info(f"User {user_id} needs setup reminder")
+        
+        # Send confirmation callback answer
+        await cb.answer("📝 No problem! Here's a reminder to help you get started.", show_alert=False)
+        
+    except Exception as e:
+        logger.error(f"🔍 DEBUG: Error in setup_no_callback for user {user_id}: {e}")
+        logger.exception("Full exception details:")
+        # Try to answer the callback even if editing failed
+        try:
+            await cb.answer("❌ Error processing your response. Please try again.", show_alert=True)
+        except:
+            pass
 
 #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Admin Commands ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
