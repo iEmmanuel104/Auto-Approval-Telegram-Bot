@@ -38,7 +38,9 @@ app = Client(
     session_name,
     api_id=cfg.API_ID,
     api_hash=cfg.API_HASH,
-    bot_token=cfg.BOT_TOKEN
+    bot_token=cfg.BOT_TOKEN,
+    workers=50,  # Increased workers for high concurrency
+    sleep_threshold=180  # Longer sleep threshold for flood wait
 )
 
 # Initialize scheduler
