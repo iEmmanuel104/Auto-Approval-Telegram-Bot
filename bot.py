@@ -14,7 +14,8 @@ from database import (
     add_user, add_group, all_users, all_groups, users, remove_user,
     add_onboarding_user, get_onboarding_user, update_onboarding_stage,
     mark_follow_up_sent, mark_setup_completed, mark_account_verified,
-    get_users_for_follow_up, is_user_in_onboarding, already_onboarding
+    get_users_for_follow_up, is_user_in_onboarding, already_onboarding,
+    reset_onboarding
 )
 from configs import cfg
 
@@ -82,6 +83,32 @@ async def test_admin_priority(_, m: Message):
                 
     except Exception as e:
         logger.error(f"Error in test command: {e}")
+        await m.reply_text(f"Error: {e}")
+
+@app.on_message(filters.command("resetonboarding") & filters.user(cfg.SUDO))
+async def reset_onboarding_command(_, m: Message):
+    """Reset onboarding for a user (admin only)"""
+    user_id = m.from_user.id
+    
+    try:
+        # Check if there's a user ID in the command
+        parts = m.text.split()
+        if len(parts) > 1:
+            target_user_id = int(parts[1])
+        else:
+            target_user_id = user_id
+            
+        if already_onboarding(target_user_id):
+            reset_onboarding(target_user_id)
+            await m.reply_text(f"✅ Reset onboarding for user {target_user_id}")
+            logger.info(f"Admin {user_id} reset onboarding for user {target_user_id}")
+        else:
+            await m.reply_text(f"❌ User {target_user_id} has no onboarding record")
+            
+    except ValueError:
+        await m.reply_text("❌ Invalid user ID. Usage: /resetonboarding [user_id]")
+    except Exception as e:
+        logger.error(f"Error in reset onboarding command: {e}")
         await m.reply_text(f"Error: {e}")
 
 #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Onboarding Flow ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -217,38 +244,41 @@ async def approve(_, m: Message):
         
         logger.info(f"🔍 DEBUG: Starting onboarding process for user {user_id}")
         
-        if not already_onboarding(user_id):
-            logger.info(f"🔍 DEBUG: User {user_id} is not already onboarding - creating new onboarding record")
-            # New user - start onboarding
-            add_onboarding_user(user_id, first_name)
-            logger.info(f"🔍 DEBUG: Added user {user_id} to onboarding database")
+        # Always reset onboarding for fresh start (handles rejoin scenarios)
+        if already_onboarding(user_id):
+            logger.info(f"🔍 DEBUG: User {user_id} has existing onboarding record - resetting for fresh start")
+            # Remove existing onboarding record
+            reset_onboarding(user_id)
+            logger.info(f"🔍 DEBUG: Removed existing onboarding record for user {user_id}")
+        
+        # Create fresh onboarding record for all users
+        logger.info(f"🔍 DEBUG: Creating fresh onboarding record for user {user_id}")
+        add_onboarding_user(user_id, first_name)
+        logger.info(f"🔍 DEBUG: Added user {user_id} to onboarding database")
+        
+        # Always try to send welcome message on approval
+        try:
+            logger.info(f"🔍 DEBUG: Attempting to send welcome message to user {user_id}")
+            await send_welcome_message(user_id, first_name)
+            logger.info(f"🔍 DEBUG: Welcome message sent successfully to user {user_id}")
             
-            # Try to send welcome message (will fail if user hasn't started bot)
-            try:
-                logger.info(f"🔍 DEBUG: Attempting to send welcome message to user {user_id}")
-                await send_welcome_message(user_id, first_name)
-                logger.info(f"🔍 DEBUG: Welcome message sent successfully to user {user_id}")
-                
-                # Send immediate follow-up after a short delay
-                await asyncio.sleep(2)
-                logger.info(f"🔍 DEBUG: Sending immediate follow-up to user {user_id}")
-                await send_immediate_follow_up(user_id)
-                logger.info(f"🔍 DEBUG: Immediate follow-up sent to user {user_id}")
-                
-                # Update stage to indicate welcome was sent
-                update_onboarding_stage(user_id, "welcome_actually_sent")
-                logger.info(f"🔍 DEBUG: Updated onboarding stage for user {user_id} to 'welcome_actually_sent'")
-                logger.info(f"Started onboarding for user {user_id} after auto-approval")
-                
-            except errors.PeerIdInvalid:
-                logger.warning(f"🔍 DEBUG: PeerIdInvalid - User {user_id} hasn't started the bot - will send welcome when they message us")
-                # update_onboarding_stage(user_id, "welcome_sent")
-                logger.info(f"🔍 DEBUG: Updated onboarding stage for user {user_id} to 'welcome_sent' (pending)")
-            except Exception as e:
-                logger.error(f"🔍 DEBUG: Error sending welcome message to {user_id}: {e}")
-                logger.exception("Full exception details:")
-        else:
-            logger.info(f"🔍 DEBUG: User {user_id} already has onboarding record")
+            # Send immediate follow-up after a short delay
+            await asyncio.sleep(2)
+            logger.info(f"🔍 DEBUG: Sending immediate follow-up to user {user_id}")
+            await send_immediate_follow_up(user_id)
+            logger.info(f"🔍 DEBUG: Immediate follow-up sent to user {user_id}")
+            
+            # Update stage to indicate welcome was sent
+            update_onboarding_stage(user_id, "welcome_actually_sent")
+            logger.info(f"🔍 DEBUG: Updated onboarding stage for user {user_id} to 'welcome_actually_sent'")
+            logger.info(f"Started onboarding for user {user_id} after auto-approval")
+            
+        except errors.PeerIdInvalid:
+            logger.warning(f"🔍 DEBUG: PeerIdInvalid - User {user_id} hasn't started the bot - will send welcome when they message us")
+            logger.info(f"🔍 DEBUG: Onboarding stage remains 'welcome_sent' (will send when user messages us)")
+        except Exception as e:
+            logger.error(f"🔍 DEBUG: Error sending welcome message to {user_id}: {e}")
+            logger.exception("Full exception details:")
         
         logger.info(f"🔍 DEBUG: Approval process completed for user {kk.id} in chat {op.id}")
         

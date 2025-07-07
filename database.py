@@ -120,3 +120,7 @@ def is_user_in_onboarding(user_id):
 def already_onboarding(user_id):
     """Check if user already has onboarding record"""
     return onboarding.find_one({"user_id": str(user_id)}) is not None
+
+def reset_onboarding(user_id):
+    """Reset onboarding for a user (delete existing record)"""
+    return onboarding.delete_one({"user_id": str(user_id)})
