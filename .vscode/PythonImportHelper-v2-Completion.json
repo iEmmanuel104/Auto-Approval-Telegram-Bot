@@ -659,7 +659,7 @@
         "kind": 5,
         "importPath": "database",
         "description": "database",
-        "peekOfCode": "client = MongoClient(cfg.MONGO_URI)\nusers = client['main']['users']\ngroups = client['main']['groups']\nonboarding = client['main']['onboarding']\ndef already_db(user_id):\n        user = users.find_one({\"user_id\" : str(user_id)})\n        if not user:\n            return False\n        return True\ndef already_dbg(chat_id):",
+        "peekOfCode": "client = MongoClient(cfg.MONGO_URI)\nusers = client[cfg.DB_NAME]['users']\ngroups = client[cfg.DB_NAME]['groups']\nonboarding = client[cfg.DB_NAME]['onboarding']\ndef already_db(user_id):\n        user = users.find_one({\"user_id\" : str(user_id)})\n        if not user:\n            return False\n        return True\ndef already_dbg(chat_id):",
         "detail": "database",
         "documentation": {}
     },
@@ -668,7 +668,7 @@
         "kind": 5,
         "importPath": "database",
         "description": "database",
-        "peekOfCode": "users = client['main']['users']\ngroups = client['main']['groups']\nonboarding = client['main']['onboarding']\ndef already_db(user_id):\n        user = users.find_one({\"user_id\" : str(user_id)})\n        if not user:\n            return False\n        return True\ndef already_dbg(chat_id):\n        group = groups.find_one({\"chat_id\" : str(chat_id)})",
+        "peekOfCode": "users = client[cfg.DB_NAME]['users']\ngroups = client[cfg.DB_NAME]['groups']\nonboarding = client[cfg.DB_NAME]['onboarding']\ndef already_db(user_id):\n        user = users.find_one({\"user_id\" : str(user_id)})\n        if not user:\n            return False\n        return True\ndef already_dbg(chat_id):\n        group = groups.find_one({\"chat_id\" : str(chat_id)})",
         "detail": "database",
         "documentation": {}
     },
@@ -677,7 +677,7 @@
         "kind": 5,
         "importPath": "database",
         "description": "database",
-        "peekOfCode": "groups = client['main']['groups']\nonboarding = client['main']['onboarding']\ndef already_db(user_id):\n        user = users.find_one({\"user_id\" : str(user_id)})\n        if not user:\n            return False\n        return True\ndef already_dbg(chat_id):\n        group = groups.find_one({\"chat_id\" : str(chat_id)})\n        if not group:",
+        "peekOfCode": "groups = client[cfg.DB_NAME]['groups']\nonboarding = client[cfg.DB_NAME]['onboarding']\ndef already_db(user_id):\n        user = users.find_one({\"user_id\" : str(user_id)})\n        if not user:\n            return False\n        return True\ndef already_dbg(chat_id):\n        group = groups.find_one({\"chat_id\" : str(chat_id)})\n        if not group:",
         "detail": "database",
         "documentation": {}
     },
@@ -686,7 +686,7 @@
         "kind": 5,
         "importPath": "database",
         "description": "database",
-        "peekOfCode": "onboarding = client['main']['onboarding']\ndef already_db(user_id):\n        user = users.find_one({\"user_id\" : str(user_id)})\n        if not user:\n            return False\n        return True\ndef already_dbg(chat_id):\n        group = groups.find_one({\"chat_id\" : str(chat_id)})\n        if not group:\n            return False",
+        "peekOfCode": "onboarding = client[cfg.DB_NAME]['onboarding']\ndef already_db(user_id):\n        user = users.find_one({\"user_id\" : str(user_id)})\n        if not user:\n            return False\n        return True\ndef already_dbg(chat_id):\n        group = groups.find_one({\"chat_id\" : str(chat_id)})\n        if not group:\n            return False",
         "detail": "database",
         "documentation": {}
     },

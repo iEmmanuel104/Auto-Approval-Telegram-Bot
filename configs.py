@@ -43,6 +43,7 @@ class Config:
         
         # Database Configuration
         self.MONGO_URI: str = os.getenv("MONGO_URI", "")
+        self.DB_NAME: str = os.getenv("DB_NAME", "main")
         
         # Bot Owner Configuration
         self.BOT_OWNER: str = os.getenv("BOT_OWNER", "graceboy")

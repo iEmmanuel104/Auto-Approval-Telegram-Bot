@@ -5,9 +5,9 @@ import pytz
 
 client = MongoClient(cfg.MONGO_URI)
 
-users = client['main']['users']
-groups = client['main']['groups']
-onboarding = client['main']['onboarding']
+users = client[cfg.DB_NAME]['users']
+groups = client[cfg.DB_NAME]['groups']
+onboarding = client[cfg.DB_NAME]['onboarding']
 
 def already_db(user_id):
         user = users.find_one({"user_id" : str(user_id)})

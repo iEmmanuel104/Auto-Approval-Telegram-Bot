@@ -15,7 +15,8 @@
       "Bash(pip freeze)",
       "Bash(rg:*)",
       "Bash(grep:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(rm:*)"
     ],
     "deny": []
   }
