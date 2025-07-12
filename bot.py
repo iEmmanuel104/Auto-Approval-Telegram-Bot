@@ -276,37 +276,34 @@ async def check_pending_requests(_, m: Message):
         logger.error(f"Error checking pending requests: {e}")
         await m.reply_text(f"❌ Error: {e}")
 
-@app.on_message(filters.command("getchannels") & filters.user(cfg.SUDO))
-async def get_bot_channels(_, m: Message):
-    """Get all channels/groups where bot is admin (admin only)"""
+@app.on_message(filters.command("checkconfig") & filters.user(cfg.SUDO))
+async def check_config(_, m: Message):
+    """Check current bot configuration (admin only)"""
     user_id = m.from_user.id
     
     try:
-        status_msg = await m.reply_text("🔍 Checking bot's admin channels...")
+        config_info = f"""📋 **Bot Configuration:**
+
+🆔 **Current CHID:** `{cfg.CHID}`
+🆔 **Formatted CHID:** `{-int(cfg.CHID) if int(cfg.CHID) > 0 else int(cfg.CHID)}`
+
+🤖 **Bot Token:** `{cfg.BOT_TOKEN[:10]}...` (truncated)
+🔑 **API ID:** `{cfg.API_ID}`
+👤 **Admin IDs:** `{cfg.SUDO}`
+
+💡 **Instructions:**
+• Check recent logs for "Join request received from user X in chat Y"
+• The chat Y should match your CHID
+• If different, update your CHID environment variable
+
+📝 **Recent join request channel IDs from logs:**
+• Check your deployment logs for the actual channel ID"""
         
-        channels = []
-        async for dialog in app.get_dialogs():
-            chat = dialog.chat
-            if chat.type in ["channel", "supergroup"]:
-                try:
-                    # Check if bot is admin
-                    member = await app.get_chat_member(chat.id, "me")
-                    if member.status in ["administrator", "creator"]:
-                        channels.append(f"• **{chat.title}**\n  ID: `{chat.id}`\n  Type: {chat.type}")
-                except:
-                    pass
-        
-        if not channels:
-            result_text = "❌ Bot is not admin in any channels/groups"
-        else:
-            result_text = f"🤖 **Bot is admin in {len(channels)} channels:**\n\n" + "\n\n".join(channels)
-            result_text += f"\n\n📋 **Current CHID config:** `{cfg.CHID}`"
-        
-        await status_msg.edit_text(result_text)
-        logger.info(f"Admin {user_id} checked bot channels")
+        await m.reply_text(config_info)
+        logger.info(f"Admin {user_id} checked bot configuration")
         
     except Exception as e:
-        logger.error(f"Error getting bot channels: {e}")
+        logger.error(f"Error checking config: {e}")
         await m.reply_text(f"❌ Error: {e}")
 
 @app.on_message(filters.command("testbuttons") & filters.user(cfg.SUDO))
