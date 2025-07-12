@@ -168,8 +168,14 @@ async def approve_pending_requests(_, m: Message):
         approved = 0
         failed = 0
         
-        # Ensure channel ID is properly formatted  
+        # Debug and format channel ID properly
+        logger.info(f"Raw CHID from config: {cfg.CHID}")
+        
+        # Ensure channel ID is properly formatted with negative sign
         channel_id = int(cfg.CHID)
+        if channel_id > 0:
+            channel_id = -channel_id  # Add negative sign for supergroup IDs
+            
         logger.info(f"Processing pending requests for channel ID: {channel_id}")
         
         # Get all pending requests from the channel
@@ -234,9 +240,16 @@ async def check_pending_requests(_, m: Message):
         pending_count = 0
         pending_users = []
         
-        # Ensure channel ID is properly formatted
+        # Debug channel ID formatting
+        logger.info(f"Raw CHID from config: {cfg.CHID}")
+        logger.info(f"CHID type: {type(cfg.CHID)}")
+        
+        # Ensure channel ID is properly formatted with negative sign
         channel_id = int(cfg.CHID)
-        logger.info(f"Checking pending requests for channel ID: {channel_id}")
+        if channel_id > 0:
+            channel_id = -channel_id  # Add negative sign for supergroup IDs
+        
+        logger.info(f"Final channel ID for requests: {channel_id}")
         
         # Count all pending requests
         async for request in app.get_chat_join_requests(channel_id):
