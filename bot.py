@@ -769,6 +769,15 @@ if __name__ == "__main__":
     print(f"🤖 {cfg.BOT_NAME} is starting...")
     
     try:
+        # Debug environment variables
+        logger.info(f"MONGO_URI set: {'Yes' if cfg.MONGO_URI else 'No'}")
+        logger.info(f"DB_NAME: {cfg.DB_NAME}")
+        
+        # Test database connection
+        from database import client
+        client.admin.command('ping')
+        logger.info("✅ Database connection successful")
+        
         # Start scheduler with improved job settings
         scheduler.add_job(
             process_follow_ups,
@@ -786,6 +795,7 @@ if __name__ == "__main__":
         app.run()
     except Exception as e:
         logger.error(f"Error starting bot: {str(e)}")
+        logger.exception("Full exception details:")
         print(f"❌ Error starting bot: {str(e)}")
     finally:
         scheduler.shutdown()
