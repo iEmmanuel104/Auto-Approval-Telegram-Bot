@@ -14,7 +14,8 @@
       "Bash(chmod:*)",
       "Bash(pip freeze)",
       "Bash(rg:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(mkdir:*)"
     ],
     "deny": []
   }

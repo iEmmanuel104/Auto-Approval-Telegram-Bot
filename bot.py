@@ -2,6 +2,7 @@ import logging
 import asyncio
 import random
 import os
+import time
 from datetime import datetime, timedelta
 from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
 from pyrogram import filters, Client, errors, enums
@@ -33,18 +34,56 @@ logger = logging.getLogger(__name__)
 # Create unique session name for different environments
 session_name = f"graceboy_bot_{os.getenv('RAILWAY_ENVIRONMENT', 'local')}_{hash(cfg.BOT_TOKEN) % 10000}"
 
-# Initialize bot client
+# Initialize bot client with improved connection settings
 app = Client(
     session_name,
     api_id=cfg.API_ID,
     api_hash=cfg.API_HASH,
     bot_token=cfg.BOT_TOKEN,
-    workers=50,  # Increased workers for high concurrency
-    sleep_threshold=180  # Longer sleep threshold for flood wait
+    workers=25,  # Reduced workers to prevent overwhelming connections
+    sleep_threshold=60,  # Shorter sleep threshold
+    workdir="./sessions",  # Store session files
+    in_memory=False,  # Use persistent sessions
+    max_concurrent_transmissions=10  # Limit concurrent transmissions
 )
 
-# Initialize scheduler
+# Initialize scheduler with proper job settings
 scheduler = AsyncIOScheduler()
+
+# Rate limiting for API calls
+last_api_call = {}
+API_CALL_DELAY = 1.0  # Minimum delay between API calls
+
+async def rate_limited_send(func, *args, **kwargs):
+    """Apply rate limiting to API calls with exponential backoff"""
+    current_time = time.time()
+    if 'last_call' not in rate_limited_send.__dict__:
+        rate_limited_send.last_call = 0
+    
+    time_since_last = current_time - rate_limited_send.last_call
+    if time_since_last < API_CALL_DELAY:
+        await asyncio.sleep(API_CALL_DELAY - time_since_last)
+    
+    max_retries = 5
+    base_delay = 2
+    
+    for attempt in range(max_retries):
+        try:
+            rate_limited_send.last_call = time.time()
+            return await func(*args, **kwargs)
+        except (errors.FloodWait, ConnectionError, OSError) as e:
+            if attempt == max_retries - 1:
+                raise
+            
+            if isinstance(e, errors.FloodWait):
+                delay = e.value
+            else:
+                delay = base_delay * (2 ** attempt) + random.uniform(0, 1)
+            
+            logger.warning(f"Connection error (attempt {attempt + 1}/{max_retries}): {e}. Retrying in {delay:.2f}s")
+            await asyncio.sleep(delay)
+    
+    raise Exception(f"Failed after {max_retries} attempts")
 
 #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Debug Handler (Priority) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -156,7 +195,7 @@ async def send_welcome_message(user_id: int, first_name: str):
     welcome_text = cfg.WELCOME_MESSAGE.format(first_name=first_name)
     
     try:
-        await app.send_message(user_id, welcome_text)
+        await rate_limited_send(app.send_message, user_id, welcome_text)
         logger.info(f"Welcome message sent to user {user_id}")
     except Exception as e:
         logger.error(f"Error sending welcome message to {user_id}: {e}")
@@ -166,7 +205,7 @@ async def send_immediate_follow_up(user_id: int):
     follow_up_text = cfg.IMMEDIATE_FOLLOW_UP
     
     try:
-        await app.send_message(user_id, follow_up_text)
+        await rate_limited_send(app.send_message, user_id, follow_up_text)
         logger.info(f"Immediate follow-up sent to user {user_id}")
     except Exception as e:
         logger.error(f"Error sending immediate follow-up to {user_id}: {e}")
@@ -181,7 +220,7 @@ async def send_setup_instructions(user_id: int, first_name: str):
     )
     
     try:
-        await app.send_message(user_id, setup_text)
+        await rate_limited_send(app.send_message, user_id, setup_text)
         logger.info(f"Setup instructions sent to user {user_id}")
     except Exception as e:
         logger.error(f"Error sending setup instructions to {user_id}: {e}")
@@ -195,7 +234,7 @@ async def send_support_message(user_id: int):
     )
     
     try:
-        await app.send_message(user_id, support_text)
+        await rate_limited_send(app.send_message, user_id, support_text)
         logger.info(f"Support message sent to user {user_id}")
     except Exception as e:
         logger.error(f"Error sending support message to {user_id}: {e}")
@@ -212,9 +251,15 @@ async def send_1hour_follow_up(user_id: int):
     ])
     
     try:
-        await app.send_message(user_id, follow_up_text, reply_markup=keyboard)
+        await rate_limited_send(app.send_message, user_id, follow_up_text, reply_markup=keyboard)
         mark_follow_up_sent(user_id, "1h")
         logger.info(f"1-hour follow-up sent to user {user_id}")
+    except errors.PeerIdInvalid:
+        logger.warning(f"Cannot send follow-up to {user_id}: User hasn't started the bot yet")
+        mark_follow_up_sent(user_id, "1h")
+    except errors.UserIsBlocked:
+        logger.warning(f"User {user_id} has blocked the bot")
+        mark_follow_up_sent(user_id, "1h")
     except Exception as e:
         logger.error(f"Error sending 1-hour follow-up to {user_id}: {e}")
 
@@ -227,9 +272,15 @@ async def send_3hour_follow_up(user_id: int, first_name: str):
     )
     
     try:
-        await app.send_message(user_id, follow_up_text)
+        await rate_limited_send(app.send_message, user_id, follow_up_text)
         mark_follow_up_sent(user_id, "3h")
         logger.info(f"3-hour follow-up sent to user {user_id}")
+    except errors.PeerIdInvalid:
+        logger.warning(f"Cannot send 3h follow-up to {user_id}: User hasn't started the bot yet")
+        mark_follow_up_sent(user_id, "3h")
+    except errors.UserIsBlocked:
+        logger.warning(f"User {user_id} has blocked the bot")
+        mark_follow_up_sent(user_id, "3h")
     except Exception as e:
         logger.error(f"Error sending 3-hour follow-up to {user_id}: {e}")
 
@@ -646,6 +697,10 @@ async def broadcast(_, m: Message):
             remove_user(userid)
         except errors.UserIsBlocked:
             blocked += 1
+            remove_user(userid)
+        except errors.PeerIdInvalid:
+            failed += 1
+            logger.warning(f"User {userid} hasn't started the bot yet - skipping broadcast")
         except Exception as e:
             logger.error(f"Broadcast error: {str(e)}")
             failed += 1
@@ -690,6 +745,10 @@ async def forward_broadcast(_, m: Message):
             remove_user(userid)
         except errors.UserIsBlocked:
             blocked += 1
+            remove_user(userid)
+        except errors.PeerIdInvalid:
+            failed += 1
+            logger.warning(f"User {userid} hasn't started the bot yet - skipping forward")
         except Exception as e:
             logger.error(f"Forward broadcast error: {str(e)}")
             failed += 1
@@ -710,12 +769,15 @@ if __name__ == "__main__":
     print(f"🤖 {cfg.BOT_NAME} is starting...")
     
     try:
-        # Start scheduler
+        # Start scheduler with improved job settings
         scheduler.add_job(
             process_follow_ups,
             IntervalTrigger(seconds=30),  # Check every 30 seconds for testing
             id='follow_up_processor',
-            replace_existing=True
+            replace_existing=True,
+            max_instances=3,  # Allow up to 3 concurrent instances
+            coalesce=True,  # Combine multiple pending executions
+            misfire_grace_time=30  # Grace time for missed executions
         )
         scheduler.start()
         logger.info("Scheduler started")
