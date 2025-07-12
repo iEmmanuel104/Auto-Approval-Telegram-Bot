@@ -34,6 +34,11 @@ logger = logging.getLogger(__name__)
 # Create unique session name for different environments
 session_name = f"graceboy_bot_{os.getenv('RAILWAY_ENVIRONMENT', 'local')}_{hash(cfg.BOT_TOKEN) % 10000}"
 
+# Ensure sessions directory exists and is writable
+import os
+sessions_dir = "/tmp/sessions"
+os.makedirs(sessions_dir, exist_ok=True)
+
 # Initialize bot client with improved connection settings
 app = Client(
     session_name,
@@ -42,7 +47,7 @@ app = Client(
     bot_token=cfg.BOT_TOKEN,
     workers=25,  # Reduced workers to prevent overwhelming connections
     sleep_threshold=60,  # Shorter sleep threshold
-    workdir="./sessions",  # Store session files
+    workdir=sessions_dir,  # Store session files in /tmp
     in_memory=False,  # Use persistent sessions
     max_concurrent_transmissions=10  # Limit concurrent transmissions
 )
