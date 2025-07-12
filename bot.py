@@ -168,14 +168,18 @@ async def approve_pending_requests(_, m: Message):
         approved = 0
         failed = 0
         
+        # Ensure channel ID is properly formatted  
+        channel_id = int(cfg.CHID)
+        logger.info(f"Processing pending requests for channel ID: {channel_id}")
+        
         # Get all pending requests from the channel
-        async for request in app.get_chat_join_requests(cfg.CHID):
+        async for request in app.get_chat_join_requests(channel_id):
             try:
-                await app.approve_chat_join_request(cfg.CHID, request.user.id)
+                await app.approve_chat_join_request(channel_id, request.user.id)
                 
                 # Add to database and start onboarding
                 add_user(request.user.id)
-                add_group(cfg.CHID)
+                add_group(channel_id)
                 
                 # Start onboarding if not admin
                 if request.user.id not in cfg.SUDO:
@@ -230,8 +234,12 @@ async def check_pending_requests(_, m: Message):
         pending_count = 0
         pending_users = []
         
+        # Ensure channel ID is properly formatted
+        channel_id = int(cfg.CHID)
+        logger.info(f"Checking pending requests for channel ID: {channel_id}")
+        
         # Count all pending requests
-        async for request in app.get_chat_join_requests(cfg.CHID):
+        async for request in app.get_chat_join_requests(channel_id):
             pending_count += 1
             pending_users.append(f"• {request.user.first_name or 'Unknown'} ({request.user.id})")
             
