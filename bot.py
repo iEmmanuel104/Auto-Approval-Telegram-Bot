@@ -157,6 +157,104 @@ async def reset_onboarding_command(_, m: Message):
         logger.error(f"Error in reset onboarding command: {e}")
         await m.reply_text(f"Error: {e}")
 
+@app.on_message(filters.command("approvepending") & filters.user(cfg.SUDO))
+async def approve_pending_requests(_, m: Message):
+    """Approve all pending join requests (admin only)"""
+    user_id = m.from_user.id
+    
+    try:
+        status_msg = await m.reply_text("🔄 Processing pending requests...")
+        
+        approved = 0
+        failed = 0
+        
+        # Get all pending requests from the channel
+        async for request in app.get_chat_join_requests(cfg.CHID):
+            try:
+                await app.approve_chat_join_request(cfg.CHID, request.user.id)
+                
+                # Add to database and start onboarding
+                add_user(request.user.id)
+                add_group(cfg.CHID)
+                
+                # Start onboarding if not admin
+                if request.user.id not in cfg.SUDO:
+                    first_name = request.user.first_name or "Friend"
+                    
+                    # Reset existing onboarding for fresh start
+                    if already_onboarding(request.user.id):
+                        reset_onboarding(request.user.id)
+                    
+                    add_onboarding_user(request.user.id, first_name)
+                    
+                    # Try to send welcome message
+                    try:
+                        await send_welcome_message(request.user.id, first_name)
+                        await asyncio.sleep(2)
+                        await send_immediate_follow_up(request.user.id)
+                        update_onboarding_stage(request.user.id, "welcome_actually_sent")
+                    except errors.PeerIdInvalid:
+                        logger.info(f"User {request.user.id} hasn't started bot - welcome will be sent when they message")
+                    except Exception as e:
+                        logger.warning(f"Could not send welcome to {request.user.id}: {e}")
+                
+                approved += 1
+                
+                # Update status every 10 approvals
+                if approved % 10 == 0:
+                    await status_msg.edit_text(f"🔄 Approved {approved} requests so far...")
+                
+                # Rate limit to avoid flooding
+                await asyncio.sleep(0.5)
+                
+            except Exception as e:
+                logger.error(f"Failed to approve request from {request.user.id}: {e}")
+                failed += 1
+        
+        result_text = f"✅ Bulk approval completed!\n\n📊 **Results:**\n• Approved: {approved}\n• Failed: {failed}"
+        await status_msg.edit_text(result_text)
+        logger.info(f"Admin {user_id} bulk approved {approved} pending requests")
+        
+    except Exception as e:
+        logger.error(f"Error in bulk approve command: {e}")
+        await m.reply_text(f"❌ Error: {e}")
+
+@app.on_message(filters.command("checkpending") & filters.user(cfg.SUDO))
+async def check_pending_requests(_, m: Message):
+    """Check how many pending join requests exist (admin only)"""
+    user_id = m.from_user.id
+    
+    try:
+        status_msg = await m.reply_text("🔍 Checking pending requests...")
+        
+        pending_count = 0
+        pending_users = []
+        
+        # Count all pending requests
+        async for request in app.get_chat_join_requests(cfg.CHID):
+            pending_count += 1
+            pending_users.append(f"• {request.user.first_name or 'Unknown'} ({request.user.id})")
+            
+            # Limit display to first 20 users
+            if pending_count >= 20:
+                break
+        
+        if pending_count == 0:
+            result_text = "✅ No pending join requests!"
+        else:
+            user_list = "\n".join(pending_users[:10])  # Show first 10
+            if pending_count > 10:
+                user_list += f"\n... and {pending_count - 10} more"
+            
+            result_text = f"📊 **Pending Join Requests: {pending_count}**\n\n👥 **Recent Users:**\n{user_list}\n\n💡 Use `/approvepending` to approve all at once"
+        
+        await status_msg.edit_text(result_text)
+        logger.info(f"Admin {user_id} checked pending requests: {pending_count} found")
+        
+    except Exception as e:
+        logger.error(f"Error checking pending requests: {e}")
+        await m.reply_text(f"❌ Error: {e}")
+
 @app.on_message(filters.command("testbuttons") & filters.user(cfg.SUDO))
 async def test_buttons_command(_, m: Message):
     """Test button functionality (admin only)"""
