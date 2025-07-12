@@ -276,6 +276,39 @@ async def check_pending_requests(_, m: Message):
         logger.error(f"Error checking pending requests: {e}")
         await m.reply_text(f"❌ Error: {e}")
 
+@app.on_message(filters.command("getchannels") & filters.user(cfg.SUDO))
+async def get_bot_channels(_, m: Message):
+    """Get all channels/groups where bot is admin (admin only)"""
+    user_id = m.from_user.id
+    
+    try:
+        status_msg = await m.reply_text("🔍 Checking bot's admin channels...")
+        
+        channels = []
+        async for dialog in app.get_dialogs():
+            chat = dialog.chat
+            if chat.type in ["channel", "supergroup"]:
+                try:
+                    # Check if bot is admin
+                    member = await app.get_chat_member(chat.id, "me")
+                    if member.status in ["administrator", "creator"]:
+                        channels.append(f"• **{chat.title}**\n  ID: `{chat.id}`\n  Type: {chat.type}")
+                except:
+                    pass
+        
+        if not channels:
+            result_text = "❌ Bot is not admin in any channels/groups"
+        else:
+            result_text = f"🤖 **Bot is admin in {len(channels)} channels:**\n\n" + "\n\n".join(channels)
+            result_text += f"\n\n📋 **Current CHID config:** `{cfg.CHID}`"
+        
+        await status_msg.edit_text(result_text)
+        logger.info(f"Admin {user_id} checked bot channels")
+        
+    except Exception as e:
+        logger.error(f"Error getting bot channels: {e}")
+        await m.reply_text(f"❌ Error: {e}")
+
 @app.on_message(filters.command("testbuttons") & filters.user(cfg.SUDO))
 async def test_buttons_command(_, m: Message):
     """Test button functionality (admin only)"""
