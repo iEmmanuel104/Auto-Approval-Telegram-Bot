@@ -825,12 +825,15 @@ async def get_stats(_, m: Message):
 
 @app.on_message(filters.command("bcast") & filters.user(cfg.SUDO))
 async def broadcast(_, m: Message):
+    print("=======================in broadcast")
     """Broadcast message to all users (admin only)"""
     logger.info(f"Broadcast command triggered by user {m.from_user.id}")
     if not m.reply_to_message:
+        print("=======================no reply to message")
         await m.reply_text("Please reply to a message to broadcast.")
         return
     
+    print("========================try to get users")
     allusers = users
     lel = await m.reply_text("`⚡️ Processing...`")
     success = 0
@@ -839,13 +842,44 @@ async def broadcast(_, m: Message):
     blocked = 0
     
     for usrs in allusers.find():
+        print("====================looking for all users")
         try:
             userid = usrs["user_id"]
-            await m.reply_to_message.copy(int(userid))
+            
+            # Check if the message contains [firstname] placeholder
+            if m.reply_to_message.text and "[firstname]" in m.reply_to_message.text:
+                # Get user's first name from onboarding data
+                user_data = get_onboarding_user(userid)
+                first_name = user_data.get("first_name", "Friend") if user_data else "Friend"
+                
+                # Replace [firstname] with actual first name
+                personalized_text = m.reply_to_message.text.replace("[firstname]", first_name)
+                
+                # Send personalized message
+                await app.send_message(
+                    int(userid),
+                    personalized_text,
+                    reply_markup=m.reply_to_message.reply_markup
+                )
+            else:
+                # Regular broadcast without personalization
+                await m.reply_to_message.copy(int(userid))
+            
             success += 1
         except FloodWait as ex:
             await asyncio.sleep(ex.value)
-            await m.reply_to_message.copy(int(userid))
+            # Retry with same personalization logic
+            if m.reply_to_message.text and "[firstname]" in m.reply_to_message.text:
+                user_data = get_onboarding_user(userid)
+                first_name = user_data.get("first_name", "Friend") if user_data else "Friend"
+                personalized_text = m.reply_to_message.text.replace("[firstname]", first_name)
+                await app.send_message(
+                    int(userid),
+                    personalized_text,
+                    reply_markup=m.reply_to_message.reply_markup
+                )
+            else:
+                await m.reply_to_message.copy(int(userid))
         except errors.InputUserDeactivated:
             deactivated += 1
             remove_user(userid)
@@ -889,11 +923,41 @@ async def forward_broadcast(_, m: Message):
     for usrs in allusers.find():
         try:
             userid = usrs["user_id"]
-            await m.reply_to_message.forward(int(userid))
+            
+            # Check if the message contains [firstname] placeholder
+            if m.reply_to_message.text and "[firstname]" in m.reply_to_message.text:
+                # Get user's first name from onboarding data
+                user_data = get_onboarding_user(userid)
+                first_name = user_data.get("first_name", "Friend") if user_data else "Friend"
+                
+                # Replace [firstname] with actual first name
+                personalized_text = m.reply_to_message.text.replace("[firstname]", first_name)
+                
+                # Send personalized message (can't forward personalized content)
+                await app.send_message(
+                    int(userid),
+                    personalized_text,
+                    reply_markup=m.reply_to_message.reply_markup
+                )
+            else:
+                # Regular forward without personalization
+                await m.reply_to_message.forward(int(userid))
+            
             success += 1
         except FloodWait as ex:
             await asyncio.sleep(ex.value)
-            await m.reply_to_message.forward(int(userid))
+            # Retry with same personalization logic
+            if m.reply_to_message.text and "[firstname]" in m.reply_to_message.text:
+                user_data = get_onboarding_user(userid)
+                first_name = user_data.get("first_name", "Friend") if user_data else "Friend"
+                personalized_text = m.reply_to_message.text.replace("[firstname]", first_name)
+                await app.send_message(
+                    int(userid),
+                    personalized_text,
+                    reply_markup=m.reply_to_message.reply_markup
+                )
+            else:
+                await m.reply_to_message.forward(int(userid))
         except errors.InputUserDeactivated:
             deactivated += 1
             remove_user(userid)
@@ -916,6 +980,7 @@ async def forward_broadcast(_, m: Message):
     
     await lel.edit(result_text)
     logger.info(f"Forward broadcast completed by admin {m.from_user.id}: {success} successful, {failed} failed")
+
 
 # Start the bot
 if __name__ == "__main__":
