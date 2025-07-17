@@ -848,9 +848,19 @@ async def broadcast(_, m: Message):
             
             # Check if the message contains [firstname] placeholder
             if m.reply_to_message.text and "[firstname]" in m.reply_to_message.text:
-                # Get user's first name from onboarding data
+                # Try to get user's first name from onboarding data first
                 user_data = get_onboarding_user(userid)
-                first_name = user_data.get("first_name", "Friend") if user_data else "Friend"
+                first_name = None
+                
+                if user_data and user_data.get("first_name"):
+                    first_name = user_data.get("first_name")
+                else:
+                    # Try to get first name from Telegram user object
+                    try:
+                        user = await app.get_users(int(userid))
+                        first_name = user.first_name or "Friend"
+                    except Exception:
+                        first_name = "Friend"
                 
                 # Replace [firstname] with actual first name
                 personalized_text = m.reply_to_message.text.replace("[firstname]", first_name)
@@ -871,7 +881,17 @@ async def broadcast(_, m: Message):
             # Retry with same personalization logic
             if m.reply_to_message.text and "[firstname]" in m.reply_to_message.text:
                 user_data = get_onboarding_user(userid)
-                first_name = user_data.get("first_name", "Friend") if user_data else "Friend"
+                first_name = None
+                
+                if user_data and user_data.get("first_name"):
+                    first_name = user_data.get("first_name")
+                else:
+                    try:
+                        user = await app.get_users(int(userid))
+                        first_name = user.first_name or "Friend"
+                    except Exception:
+                        first_name = "Friend"
+                
                 personalized_text = m.reply_to_message.text.replace("[firstname]", first_name)
                 await app.send_message(
                     int(userid),
@@ -926,9 +946,19 @@ async def forward_broadcast(_, m: Message):
             
             # Check if the message contains [firstname] placeholder
             if m.reply_to_message.text and "[firstname]" in m.reply_to_message.text:
-                # Get user's first name from onboarding data
+                # Try to get user's first name from onboarding data first
                 user_data = get_onboarding_user(userid)
-                first_name = user_data.get("first_name", "Friend") if user_data else "Friend"
+                first_name = None
+                
+                if user_data and user_data.get("first_name"):
+                    first_name = user_data.get("first_name")
+                else:
+                    # Try to get first name from Telegram user object
+                    try:
+                        user = await app.get_users(int(userid))
+                        first_name = user.first_name or "Friend"
+                    except Exception:
+                        first_name = "Friend"
                 
                 # Replace [firstname] with actual first name
                 personalized_text = m.reply_to_message.text.replace("[firstname]", first_name)
@@ -949,7 +979,17 @@ async def forward_broadcast(_, m: Message):
             # Retry with same personalization logic
             if m.reply_to_message.text and "[firstname]" in m.reply_to_message.text:
                 user_data = get_onboarding_user(userid)
-                first_name = user_data.get("first_name", "Friend") if user_data else "Friend"
+                first_name = None
+                
+                if user_data and user_data.get("first_name"):
+                    first_name = user_data.get("first_name")
+                else:
+                    try:
+                        user = await app.get_users(int(userid))
+                        first_name = user.first_name or "Friend"
+                    except Exception:
+                        first_name = "Friend"
+                
                 personalized_text = m.reply_to_message.text.replace("[firstname]", first_name)
                 await app.send_message(
                     int(userid),
