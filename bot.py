@@ -850,7 +850,7 @@ async def broadcast(_, m: Message):
             if m.reply_to_message.text and "[firstname]" in m.reply_to_message.text:
                 # Try to get user's first name from onboarding data first
                 user_data = get_onboarding_user(userid)
-                first_name = None
+                first_name = "Friend"  # Default fallback
                 
                 if user_data and user_data.get("first_name"):
                     first_name = user_data.get("first_name")
@@ -861,6 +861,10 @@ async def broadcast(_, m: Message):
                         first_name = user.first_name or "Friend"
                     except Exception:
                         first_name = "Friend"
+                
+                # Ensure first_name is never None
+                if first_name is None:
+                    first_name = "Friend"
                 
                 # Replace [firstname] with actual first name
                 personalized_text = m.reply_to_message.text.replace("[firstname]", first_name)
@@ -881,7 +885,7 @@ async def broadcast(_, m: Message):
             # Retry with same personalization logic
             if m.reply_to_message.text and "[firstname]" in m.reply_to_message.text:
                 user_data = get_onboarding_user(userid)
-                first_name = None
+                first_name = "Friend"  # Default fallback
                 
                 if user_data and user_data.get("first_name"):
                     first_name = user_data.get("first_name")
@@ -948,7 +952,7 @@ async def forward_broadcast(_, m: Message):
             if m.reply_to_message.text and "[firstname]" in m.reply_to_message.text:
                 # Try to get user's first name from onboarding data first
                 user_data = get_onboarding_user(userid)
-                first_name = None
+                first_name = "Friend"  # Default fallback
                 
                 if user_data and user_data.get("first_name"):
                     first_name = user_data.get("first_name")
@@ -959,6 +963,10 @@ async def forward_broadcast(_, m: Message):
                         first_name = user.first_name or "Friend"
                     except Exception:
                         first_name = "Friend"
+                
+                # Ensure first_name is never None
+                if first_name is None:
+                    first_name = "Friend"
                 
                 # Replace [firstname] with actual first name
                 personalized_text = m.reply_to_message.text.replace("[firstname]", first_name)
@@ -979,7 +987,7 @@ async def forward_broadcast(_, m: Message):
             # Retry with same personalization logic
             if m.reply_to_message.text and "[firstname]" in m.reply_to_message.text:
                 user_data = get_onboarding_user(userid)
-                first_name = None
+                first_name = "Friend"  # Default fallback
                 
                 if user_data and user_data.get("first_name"):
                     first_name = user_data.get("first_name")
