@@ -16,7 +16,7 @@ from database import (
     add_onboarding_user, get_onboarding_user, update_onboarding_stage,
     mark_follow_up_sent, mark_setup_completed, mark_account_verified,
     get_users_for_follow_up, is_user_in_onboarding, already_onboarding,
-    reset_onboarding
+    reset_onboarding, get_whatsapp_link, set_whatsapp_link
 )
 from configs import cfg
 
@@ -349,7 +349,7 @@ async def send_welcome_message(user_id: int, first_name: str):
     welcome_text = cfg.WELCOME_MESSAGE.format(first_name=first_name)
     
     try:
-        await rate_limited_send(app.send_message, user_id, welcome_text)
+        await rate_limited_send(app.send_message, user_id, welcome_text, disable_web_page_preview=True)
         logger.info(f"Welcome message sent to user {user_id}")
     except Exception as e:
         logger.error(f"Error sending welcome message to {user_id}: {e}")
@@ -359,7 +359,7 @@ async def send_immediate_follow_up(user_id: int):
     follow_up_text = cfg.IMMEDIATE_FOLLOW_UP
     
     try:
-        await rate_limited_send(app.send_message, user_id, follow_up_text)
+        await rate_limited_send(app.send_message, user_id, follow_up_text, disable_web_page_preview=True)
         logger.info(f"Immediate follow-up sent to user {user_id}")
     except Exception as e:
         logger.error(f"Error sending immediate follow-up to {user_id}: {e}")
@@ -374,7 +374,7 @@ async def send_setup_instructions(user_id: int, first_name: str):
     )
     
     try:
-        await rate_limited_send(app.send_message, user_id, setup_text)
+        await rate_limited_send(app.send_message, user_id, setup_text, disable_web_page_preview=True)
         logger.info(f"Setup instructions sent to user {user_id}")
     except Exception as e:
         logger.error(f"Error sending setup instructions to {user_id}: {e}")
@@ -388,14 +388,22 @@ async def send_support_message(user_id: int):
     )
     
     try:
-        await rate_limited_send(app.send_message, user_id, support_text)
+        await rate_limited_send(app.send_message, user_id, support_text, disable_web_page_preview=True)
         logger.info(f"Support message sent to user {user_id}")
     except Exception as e:
         logger.error(f"Error sending support message to {user_id}: {e}")
 
 async def send_1hour_follow_up(user_id: int):
-    """Send 1-hour follow-up with Yes/No buttons"""
-    follow_up_text = cfg.FOLLOW_UP_1H
+    """Send 1-hour follow-up with Yes/No buttons and WhatsApp link"""
+    # Check if WhatsApp link is available
+    whatsapp_link = get_whatsapp_link()
+    if not whatsapp_link:
+        logger.info(f"Skipping 1-hour follow-up for user {user_id}: No WhatsApp link set")
+        mark_follow_up_sent(user_id, "1h")
+        return
+    
+    # Include WhatsApp link in the message
+    follow_up_text = cfg.FOLLOW_UP_1H.format(whatsapp_link=whatsapp_link)
     
     keyboard = InlineKeyboardMarkup([
         [
@@ -405,9 +413,9 @@ async def send_1hour_follow_up(user_id: int):
     ])
     
     try:
-        await rate_limited_send(app.send_message, user_id, follow_up_text, reply_markup=keyboard)
+        await rate_limited_send(app.send_message, user_id, follow_up_text, reply_markup=keyboard, disable_web_page_preview=True)
         mark_follow_up_sent(user_id, "1h")
-        logger.info(f"1-hour follow-up sent to user {user_id}")
+        logger.info(f"1-hour follow-up sent to user {user_id} with WhatsApp link")
     except errors.PeerIdInvalid:
         logger.warning(f"Cannot send follow-up to {user_id}: User hasn't started the bot yet")
         mark_follow_up_sent(user_id, "1h")
@@ -426,7 +434,7 @@ async def send_3hour_follow_up(user_id: int, first_name: str):
     )
     
     try:
-        await rate_limited_send(app.send_message, user_id, follow_up_text)
+        await rate_limited_send(app.send_message, user_id, follow_up_text, disable_web_page_preview=True)
         mark_follow_up_sent(user_id, "3h")
         logger.info(f"3-hour follow-up sent to user {user_id}")
     except errors.PeerIdInvalid:
@@ -796,7 +804,35 @@ async def setup_no_callback(_, cb: CallbackQuery):
 
 #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Admin Commands ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-
+@app.on_message(filters.command("setlink") & filters.user(cfg.SUDO))
+async def set_whatsapp_link_command(_, m: Message):
+    """Set WhatsApp link for follow-up messages (admin only)"""
+    user_id = m.from_user.id
+    
+    try:
+        parts = m.text.split(' ', 1)
+        if len(parts) < 2:
+            current_link = get_whatsapp_link()
+            if current_link:
+                await m.reply_text(f"Current WhatsApp link: {current_link}\n\nUsage: /setlink <whatsapp_link>")
+            else:
+                await m.reply_text("No WhatsApp link set.\n\nUsage: /setlink <whatsapp_link>")
+            return
+        
+        whatsapp_link = parts[1].strip()
+        
+        # Basic validation for WhatsApp links
+        if not (whatsapp_link.startswith('https://wa.me/') or whatsapp_link.startswith('https://chat.whatsapp.com/')):
+            await m.reply_text("❌ Invalid WhatsApp link format. Please use:\n• https://wa.me/phonenumber\n• https://chat.whatsapp.com/grouplink")
+            return
+        
+        set_whatsapp_link(whatsapp_link)
+        await m.reply_text(f"✅ WhatsApp link updated successfully!\n\nNew link: {whatsapp_link}")
+        logger.info(f"Admin {user_id} set WhatsApp link: {whatsapp_link}")
+        
+    except Exception as e:
+        logger.error(f"Error in setlink command: {e}")
+        await m.reply_text(f"❌ Error: {e}")
 
 @app.on_message(filters.command("users") & filters.user(cfg.SUDO))
 async def get_stats(_, m: Message):
@@ -873,7 +909,8 @@ async def broadcast(_, m: Message):
                 await app.send_message(
                     int(userid),
                     personalized_text,
-                    reply_markup=m.reply_to_message.reply_markup
+                    reply_markup=m.reply_to_message.reply_markup,
+                    disable_web_page_preview=True
                 )
             else:
                 # Regular broadcast without personalization
@@ -900,7 +937,8 @@ async def broadcast(_, m: Message):
                 await app.send_message(
                     int(userid),
                     personalized_text,
-                    reply_markup=m.reply_to_message.reply_markup
+                    reply_markup=m.reply_to_message.reply_markup,
+                    disable_web_page_preview=True
                 )
             else:
                 await m.reply_to_message.copy(int(userid))
@@ -975,7 +1013,8 @@ async def forward_broadcast(_, m: Message):
                 await app.send_message(
                     int(userid),
                     personalized_text,
-                    reply_markup=m.reply_to_message.reply_markup
+                    reply_markup=m.reply_to_message.reply_markup,
+                    disable_web_page_preview=True
                 )
             else:
                 # Regular forward without personalization
@@ -1002,7 +1041,8 @@ async def forward_broadcast(_, m: Message):
                 await app.send_message(
                     int(userid),
                     personalized_text,
-                    reply_markup=m.reply_to_message.reply_markup
+                    reply_markup=m.reply_to_message.reply_markup,
+                    disable_web_page_preview=True
                 )
             else:
                 await m.reply_to_message.forward(int(userid))

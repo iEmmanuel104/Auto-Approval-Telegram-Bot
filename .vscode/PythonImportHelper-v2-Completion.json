@@ -69,7 +69,31 @@
         "documentation": {}
     },
     {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
         "label": "timedelta",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
         "importPath": "datetime",
         "description": "datetime",
         "isExtraImport": true,
@@ -359,6 +383,39 @@
         "documentation": {}
     },
     {
+        "label": "MongoClient",
+        "importPath": "pymongo",
+        "description": "pymongo",
+        "isExtraImport": true,
+        "detail": "pymongo",
+        "documentation": {}
+    },
+    {
+        "label": "MongoClient",
+        "importPath": "pymongo",
+        "description": "pymongo",
+        "isExtraImport": true,
+        "detail": "pymongo",
+        "documentation": {}
+    },
+    {
+        "label": "MongoClient",
+        "importPath": "pymongo",
+        "description": "pymongo",
+        "isExtraImport": true,
+        "detail": "pymongo",
+        "documentation": {}
+    },
+    {
+        "label": "argparse",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "argparse",
+        "description": "argparse",
+        "detail": "argparse",
+        "documentation": {}
+    },
+    {
         "label": "sys",
         "kind": 6,
         "isExtraImport": true,
@@ -401,15 +458,6 @@
         "importPath": "tempfile",
         "description": "tempfile",
         "detail": "tempfile",
-        "documentation": {}
-    },
-    {
-        "label": "argparse",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "argparse",
-        "description": "argparse",
-        "detail": "argparse",
         "documentation": {}
     },
     {
@@ -508,6 +556,87 @@
         "description": "configs",
         "peekOfCode": "cfg = Config()\ncfg.validate()",
         "detail": "configs",
+        "documentation": {}
+    },
+    {
+        "label": "copy_collection_data",
+        "kind": 2,
+        "importPath": "copy_data_to_other_bots",
+        "description": "copy_data_to_other_bots",
+        "peekOfCode": "def copy_collection_data(source_db, target_db, collection_name):\n    \"\"\"\n    Copy data from source collection to target collection without duplicates\n    \"\"\"\n    source_collection = source_db[collection_name]\n    target_collection = target_db[collection_name]\n    # Get all documents from source\n    source_docs = list(source_collection.find())\n    logger.info(f\"Found {len(source_docs)} documents in {source_db.name}.{collection_name}\")\n    added_count = 0",
+        "detail": "copy_data_to_other_bots",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 2,
+        "importPath": "copy_data_to_other_bots",
+        "description": "copy_data_to_other_bots",
+        "peekOfCode": "def main():\n    \"\"\"\n    Main function to orchestrate the data copying process\n    \"\"\"\n    try:\n        # Connect to MongoDB\n        client = MongoClient(MONGO_URI)\n        logger.info(\"Connected to MongoDB successfully\")\n        # Get source database\n        source_db = client[SOURCE_DB]",
+        "detail": "copy_data_to_other_bots",
+        "documentation": {}
+    },
+    {
+        "label": "logger",
+        "kind": 5,
+        "importPath": "copy_data_to_other_bots",
+        "description": "copy_data_to_other_bots",
+        "peekOfCode": "logger = logging.getLogger(__name__)\n# MongoDB connection details\nMONGO_URI = \"mongodb://mongo:ipLtnRbJLueAcMwiEMxdzVhwRgxbHlIj@interchange.proxy.rlwy.net:25556\"\nSOURCE_DB = \"bot4\"\nTARGET_DBS = [\"bot1\", \"bot2\", \"bot3\"]\nCOLLECTIONS = [\"users\", \"groups\", \"onboarding\"]\ndef copy_collection_data(source_db, target_db, collection_name):\n    \"\"\"\n    Copy data from source collection to target collection without duplicates\n    \"\"\"",
+        "detail": "copy_data_to_other_bots",
+        "documentation": {}
+    },
+    {
+        "label": "MONGO_URI",
+        "kind": 5,
+        "importPath": "copy_data_to_other_bots",
+        "description": "copy_data_to_other_bots",
+        "peekOfCode": "MONGO_URI = \"mongodb://mongo:ipLtnRbJLueAcMwiEMxdzVhwRgxbHlIj@interchange.proxy.rlwy.net:25556\"\nSOURCE_DB = \"bot4\"\nTARGET_DBS = [\"bot1\", \"bot2\", \"bot3\"]\nCOLLECTIONS = [\"users\", \"groups\", \"onboarding\"]\ndef copy_collection_data(source_db, target_db, collection_name):\n    \"\"\"\n    Copy data from source collection to target collection without duplicates\n    \"\"\"\n    source_collection = source_db[collection_name]\n    target_collection = target_db[collection_name]",
+        "detail": "copy_data_to_other_bots",
+        "documentation": {}
+    },
+    {
+        "label": "SOURCE_DB",
+        "kind": 5,
+        "importPath": "copy_data_to_other_bots",
+        "description": "copy_data_to_other_bots",
+        "peekOfCode": "SOURCE_DB = \"bot4\"\nTARGET_DBS = [\"bot1\", \"bot2\", \"bot3\"]\nCOLLECTIONS = [\"users\", \"groups\", \"onboarding\"]\ndef copy_collection_data(source_db, target_db, collection_name):\n    \"\"\"\n    Copy data from source collection to target collection without duplicates\n    \"\"\"\n    source_collection = source_db[collection_name]\n    target_collection = target_db[collection_name]\n    # Get all documents from source",
+        "detail": "copy_data_to_other_bots",
+        "documentation": {}
+    },
+    {
+        "label": "TARGET_DBS",
+        "kind": 5,
+        "importPath": "copy_data_to_other_bots",
+        "description": "copy_data_to_other_bots",
+        "peekOfCode": "TARGET_DBS = [\"bot1\", \"bot2\", \"bot3\"]\nCOLLECTIONS = [\"users\", \"groups\", \"onboarding\"]\ndef copy_collection_data(source_db, target_db, collection_name):\n    \"\"\"\n    Copy data from source collection to target collection without duplicates\n    \"\"\"\n    source_collection = source_db[collection_name]\n    target_collection = target_db[collection_name]\n    # Get all documents from source\n    source_docs = list(source_collection.find())",
+        "detail": "copy_data_to_other_bots",
+        "documentation": {}
+    },
+    {
+        "label": "COLLECTIONS",
+        "kind": 5,
+        "importPath": "copy_data_to_other_bots",
+        "description": "copy_data_to_other_bots",
+        "peekOfCode": "COLLECTIONS = [\"users\", \"groups\", \"onboarding\"]\ndef copy_collection_data(source_db, target_db, collection_name):\n    \"\"\"\n    Copy data from source collection to target collection without duplicates\n    \"\"\"\n    source_collection = source_db[collection_name]\n    target_collection = target_db[collection_name]\n    # Get all documents from source\n    source_docs = list(source_collection.find())\n    logger.info(f\"Found {len(source_docs)} documents in {source_db.name}.{collection_name}\")",
+        "detail": "copy_data_to_other_bots",
+        "documentation": {}
+    },
+    {
+        "label": "copy_collection_no_duplicates",
+        "kind": 2,
+        "importPath": "copy_to_multiple_bots",
+        "description": "copy_to_multiple_bots",
+        "peekOfCode": "def copy_collection_no_duplicates(source_collection, dest_collection, collection_name):\n    \"\"\"Copy collection data without creating duplicates\"\"\"\n    print(f\"\\n📋 Copying {collection_name}...\")\n    added = 0\n    skipped = 0\n    total = source_collection.count_documents({})\n    print(f\"Found {total} documents in source {collection_name}\")\n    for doc in source_collection.find():\n        try:\n            # Determine the unique identifier based on collection",
+        "detail": "copy_to_multiple_bots",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 2,
+        "importPath": "copy_to_multiple_bots",
+        "description": "copy_to_multiple_bots",
+        "peekOfCode": "def main():\n    # Configuration\n    MONGO_URI = \"mongodb://mongo:ipLtnRbJLueAcMwiEMxdzVhwRgxbHlIj@interchange.proxy.rlwy.net:25556\"\n    SOURCE_DB = \"bot4\"\n    TARGET_DBS = [\"bot1\", \"bot2\", \"bot3\"]\n    COLLECTIONS = [\"users\", \"groups\", \"onboarding\"]\n    parser = argparse.ArgumentParser(description=\"Copy data from bot4 to bot1, bot2, and bot3\")\n    parser.add_argument(\"--dry-run\", action=\"store_true\", help=\"Show what would be copied without actually doing it\")\n    args = parser.parse_args()\n    print(f\"🚀 Starting data copy from {SOURCE_DB} to {', '.join(TARGET_DBS)}...\")",
+        "detail": "copy_to_multiple_bots",
         "documentation": {}
     },
     {
@@ -778,6 +907,33 @@
         "description": "get-pip",
         "peekOfCode": "DATA = b\"\"\"\nP)h>@6aWAK2mnTQqFMrZI-~di003nH000jF003}la4%n9X>MtBUtcb8c|B0UO2j}6z0X&KUUXrdvZA;\na6ubz6s0VM$QfAw<4YV^ulDhQoop$MlK*;0e<?$L01LzdVw?IP-tnf*qTlkJj!Mom=viw7qw3H>hKz9\nFVcXpQ<V`^+*aO7_tw^Cd$4zs{Pl#j>6{|X*AaQ6!2wJ?w>%d+2&1X4Rc!^r6h-hMtH_<n)`omXfA!z\nc)+2_nTCfpGRv1uvmTkcug)ShEPeC#tJ!y1a)P)ln~75Jc!yqZE1Gl6K?CR$<8F6kVP)a}pU*@~4OAy\n<MFxvzbFl3|p@5?5Ii7qF0_`NT{r7m1lM_B44a9>d5{IF3D`nKTt~p1QY-O00;m^cA{Eu_pjHy0RRA2\n0{{RI0001RX>c!JUu|J&ZeL$6aCu!)OK;mS48HqU5b43r;JP^vOMxACEp{6QLy+m1h%E`C9MAjpBNe-\n8r;{H19{ebpf{zJ27j)n8%0=-6Z#elILRo@w9oRWWbO{z8ujDS!QAC@3T%nJCf;1rX6ghzu#Z}<GSE4\n4EG}J&ngovyJ$%DCh>R@K&*?Hgj1WFD91+adaM4G`4Xs@*hA^t@nbDYdL)-aOjsW~3}QVVby(8=@7U$\nFzj5Y{w!2hUUH`?e9j7WDA;>-1aos>7j{2$~BfyL8p@__Y98dsP#Bs7^<X<wp+-f{6%mc1~N!0T>lWF",
         "detail": "get-pip",
+        "documentation": {}
+    },
+    {
+        "label": "get_mongo_uris",
+        "kind": 2,
+        "importPath": "migrate_data",
+        "description": "migrate_data",
+        "peekOfCode": "def get_mongo_uris():\n    \"\"\"Get source and destination MongoDB URIs\"\"\"\n    source_uri = input(\"Enter SOURCE MongoDB URI: \")\n    dest_uri = input(\"Enter DESTINATION MongoDB URI: \")\n    return source_uri, dest_uri\ndef migrate_collection(source_collection, dest_collection, collection_name):\n    \"\"\"Migrate a single collection with progress tracking\"\"\"\n    print(f\"\\n📋 Migrating {collection_name}...\")\n    migrated = 0\n    skipped = 0",
+        "detail": "migrate_data",
+        "documentation": {}
+    },
+    {
+        "label": "migrate_collection",
+        "kind": 2,
+        "importPath": "migrate_data",
+        "description": "migrate_data",
+        "peekOfCode": "def migrate_collection(source_collection, dest_collection, collection_name):\n    \"\"\"Migrate a single collection with progress tracking\"\"\"\n    print(f\"\\n📋 Migrating {collection_name}...\")\n    migrated = 0\n    skipped = 0\n    total = source_collection.count_documents({})\n    print(f\"Found {total} documents in source {collection_name}\")\n    for doc in source_collection.find():\n        try:\n            # Remove _id to avoid conflicts",
+        "detail": "migrate_data",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 2,
+        "importPath": "migrate_data",
+        "description": "migrate_data",
+        "peekOfCode": "def main():\n    parser = argparse.ArgumentParser(description=\"Migrate MongoDB data between different servers\")\n    parser.add_argument(\"--source-uri\", help=\"Source MongoDB connection string\")\n    parser.add_argument(\"--source-db\", default=\"main\", help=\"Source database name (default: 'main')\")\n    parser.add_argument(\"--dest-uri\", help=\"Destination MongoDB connection string\")\n    parser.add_argument(\"--dest-db\", default=\"bot4\", help=\"Destination database name (default: 'bot4')\")\n    parser.add_argument(\"--dry-run\", action=\"store_true\", help=\"Show what would be migrated without actually doing it\")\n    args = parser.parse_args()\n    # Get MongoDB URIs\n    if args.source_uri and args.dest_uri:",
+        "detail": "migrate_data",
         "documentation": {}
     }
 ]

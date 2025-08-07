@@ -8,6 +8,7 @@ client = MongoClient(cfg.MONGO_URI)
 users = client[cfg.DB_NAME]['users']
 groups = client[cfg.DB_NAME]['groups']
 onboarding = client[cfg.DB_NAME]['onboarding']
+settings = client[cfg.DB_NAME]['settings']
 
 def already_db(user_id):
         user = users.find_one({"user_id" : str(user_id)})
@@ -124,3 +125,17 @@ def already_onboarding(user_id):
 def reset_onboarding(user_id):
     """Reset onboarding for a user (delete existing record)"""
     return onboarding.delete_one({"user_id": str(user_id)})
+
+# Settings functions
+def get_whatsapp_link():
+    """Get the WhatsApp link from settings"""
+    setting = settings.find_one({"key": "whatsapp_link"})
+    return setting["value"] if setting else None
+
+def set_whatsapp_link(link):
+    """Set the WhatsApp link in settings"""
+    return settings.update_one(
+        {"key": "whatsapp_link"}, 
+        {"$set": {"value": link}}, 
+        upsert=True
+    )

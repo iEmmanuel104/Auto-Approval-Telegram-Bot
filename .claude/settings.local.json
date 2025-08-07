@@ -16,7 +16,9 @@
       "Bash(rg:*)",
       "Bash(grep:*)",
       "Bash(mkdir:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(ls:*)",
+      "Bash(env/Scripts/python.exe mongo_backup.py dump \"mongodb+srv://iEmmanuel104:pO4OIiaTcp4qTYwS@iemmanuel104.yrz8de1.mongodb.net/solpredict?retryWrites=true&w=majority&appName=autobot\" solpredict_backup.json)"
     ],
     "deny": []
   }
