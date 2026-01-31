@@ -69,14 +69,14 @@
 
   "wilfred": {
     "bot_config": {
-      "bot_name": "Wilfred Trading Room Bot",
+      "bot_name": "LORDTJ_TRADES Trading Room Bot",
       "deposit_guide_link": "https://t.me/wilfreddeposit/3",
-      "results_channel_link": "https://t.me/wilfredshaffa",
-      "support_username": "Wilfredsupport",
-      "direct_contact_username": "Wilfredsupport",
-      "promo_code": "SIGNALACCESS",
-      "channel_url": "https://t.me/wilfredshaffa",
-      "support_url": "https://t.me/Wilfredsupport"
+      "results_channel_link": "https://t.me/+tVtQxaFTiaplMzA8",
+      "support_username": "LORDTJ_SUPPORT",
+      "direct_contact_username": "LORDTJ_TRADES",
+      "promo_code": "LORDTJ100",
+      "channel_url": "https://t.me/+tVtQxaFTiaplMzA8",
+      "support_url": "https://t.me/LORDTJ_SUPPORT"
     },
     "timing": {
       "follow_up_1_minutes": 60,
@@ -87,17 +87,17 @@
       
       "immediate_follow_up": "Click 👉 /start now — get the bot plugged in and start catching real-time trades.\n\nAccess is limited. Don't be the one watching from outside.",
       
-      "setup_instructions": "🔥 You made it in, {first_name}!\n\nLet's plug you into the system properly:\n\nYou know you need a Trading account to Access my Bot right?? You need to be ready\n\nCreating your trading account isn't hard, but I have provided you a detailed step by Step Guide to achieve that below 👇\n\nhttps://t.me/wilfreddeposit/7\n\nOnly serious ones get access, so a minimum of $20 deposit on your personal trading would grant you FREE Access\n\nInfact, you can join my public telegram I opened recently where I share RESULTS 👇\n\nhttps://t.me/wilfredshaffa",
+      "setup_instructions": "🔥 You made it in, {first_name}!\n\nLet's plug you into the system properly:\n\nYou know you need a Trading account to Access my Bot right?? You need to be ready\n\nCreating your trading account isn't hard, but I have provided you a detailed step by Step Guide to achieve that below 👇\n\nhttps://t.me/wilfreddeposit/7\n\nOnly serious ones get access, so a minimum of $20 deposit on your personal trading would grant you FREE Access\n\nInfact, you can join my public telegram I opened recently where I share RESULTS 👇\n\nhttps://t.me/+tVtQxaFTiaplMzA8",
       
-      "support_message": "Send a screenshot of your account + deposit proof to my support team 👉 @wilfredsupport\n\nOnce they verify, the signal bot will be activated immediately and start delivering trades to you 24/7.\n\nThis is a one-time setup.\n\nAfter this, you're officially in.",
+      "support_message": "Send a screenshot of your account + deposit proof to my support team 👉 @LORDTJ_SUPPORT\n\nOnce they verify, the signal bot will be activated immediately and start delivering trades to you 24/7.\n\nThis is a one-time setup.\n\nAfter this, you're officially in.",
       
       "follow_up_1h": "Hey 👋\n\nJust checking in — have you created your account and sent proof to support yet?\n\n✅ Yes, I have\n❌ No, not yet",
       
-      "follow_up_3h": "Hey again, {first_name}!\n\nJust checking one last time.\n\nIf you got stuck or have questions, reach out to me directly here @Wilfredshaffa1\n\nLet's not waste time — this bot is literally printing results every day.\n\nYou either plug in or watch others eat.\n\nYou need the Step by step guide to setting up your account? Here 👇\n\nhttps://t.me/wilfreddeposit/7",
+      "follow_up_3h": "Hey again, {first_name}!\n\nJust checking one last time.\n\nIf you got stuck or have questions, reach out to me directly here @LORDTJ_TRADES\n\nLet's not waste time — this bot is literally printing results every day.\n\nYou either plug in or watch others eat.\n\nYou need the Step by step guide to setting up your account? Here 👇\n\nhttps://t.me/wilfreddeposit/7",
       
       "setup_completed_msg": "Perfect.\n\nYou're officially inside. Stay locked in — signals are already flowing, and we're entering new trades soon.\n\nYou're good now.\n\nJust follow what the bot tells you.",
       
-      "setup_reminder_msg": "Let's wrap it up right now ✅\n\nHere's the Step by Step setup guide to creating your trading account to get you ready👇\n\nhttps://t.me/wilfreddeposit/7\n\nDon't forget the promo code: WILFRED100 for up to 150% bonus.\n\nAfter funding, send proof to @wilfredsupport so we activate the bot for you."
+      "setup_reminder_msg": "Let's wrap it up right now ✅\n\nHere's the Step by Step setup guide to creating your trading account to get you ready👇\n\nhttps://t.me/wilfreddeposit/7\n\nDon't forget the promo code: LORDTJ100 for up to 150% bonus.\n\nAfter funding, send proof to @LORDTJ_SUPPORT so we activate the bot for you."
     }
   }
 } 
